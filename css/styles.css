@@ -1,0 +1,951 @@
+/* ==========================================================================
+   Chubb Auto Analytics — Executive Light Theme Design System
+   WCAG AA Compliant | Monochromatic Blue Severity Map | Clean Typography
+   ========================================================================== */
+
+:root {
+  /* Color Palette (Executive Two-Tier Border System) */
+  --bg-main: #F1F5F9;           /* Fondo general gris claro */
+  --bg-card: #FFFFFF;           /* Recuadros principales fondo blanco */
+  --bg-kpi: #F8FAFC;            /* Tarjetas de indicadores fondo #F8FAFC */
+  --bg-control: #FFFFFF;
+  --bg-subtle: #F8FAFC;
+  
+  --text-primary: #0F172A;      /* Texto principal #0F172A */
+  --text-secondary: #475569;    /* Etiquetas y texto secundario #475569 (mínimo 14px) */
+  --text-muted: #64748B;
+  
+  /* Contornos con dos intensidades */
+  --border-main: #94A3B8;       /* Recuadros principales: más definido 1px #94A3B8 */
+  --border-inner: #CBD5E1;      /* Tarjetas interiores y separadores: suave 1px #CBD5E1 */
+  --border-subtle: #CBD5E1;     /* Compatibilidad retroactiva */
+  --border-focus: #2563EB;
+  
+  --primary-blue: #1D4ED8;
+  --primary-hover: #1E40AF;
+  --primary-light: #EFF6FF;
+  
+  /* Map Severity High-Contrast Scale */
+  --map-sev-baja: #93C5FD;    /* Azul más visible (< $7.5k MXN) */
+  --map-sev-media: #2563EB;   /* Azul claramente más intenso ($7.5k - $11k MXN) */
+  --map-sev-critica: #172554; /* Azul marino profundo (> $11k MXN) */
+  --map-sin-datos: #D1D5DB;   /* Gris neutro */
+  --map-border: #64748B;      /* Límites estatales Slate 500 */
+  --map-selected: #0F172A;    /* Contorno oscuro seleccionado */
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scroll Offset for Fixed Header */
+section[id] {
+  scroll-margin-top: 90px;
+}
+
+/* ==========================================================================
+   Compact Sticky Navbar
+   ========================================================================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border-main);
+  height: 60px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-logo {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--primary-blue);
+  letter-spacing: -0.5px;
+}
+
+.nav-tabs {
+  display: flex;
+  list-style: none;
+  gap: 8px;
+  height: 100%;
+}
+
+.nav-tabs li {
+  height: 100%;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-blue);
+}
+
+.nav-link.active {
+  color: var(--primary-blue);
+  border-bottom-color: var(--primary-blue);
+}
+
+.btn-export {
+  background: var(--primary-blue);
+  color: #FFFFFF;
+  border: none;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-export:hover {
+  background: var(--primary-hover);
+}
+
+/* ==========================================================================
+   Controls Bar (Single Line Layout, 44px Uniform Height)
+   ========================================================================== */
+.controls-bar {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border-main);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.filter-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.form-select, .form-input {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border-main);
+  border-radius: 6px;
+  background-color: var(--bg-control);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-select:focus, .form-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.context-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 16px;
+  background: #EFF6FF;
+  color: var(--primary-blue);
+  border: 1px solid var(--border-inner);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-reset {
+  height: 44px;
+  padding: 0 16px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-main);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-reset:hover {
+  background: var(--bg-subtle);
+  border-color: var(--text-primary);
+}
+
+/* Error Banner */
+.error-banner {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.error-banner.hidden { display: none; }
+
+.btn-retry {
+  background: #991B1B;
+  color: #FFFFFF;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Dashboard Container & Cards (24px Padding, 1px #94A3B8 Border)
+   ========================================================================== */
+.dashboard-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Section 1: KPI Split Container (Resumen vs Ficha Estatal)
+   ========================================================================== */
+.kpi-split-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .kpi-split-container { grid-template-columns: 1fr; }
+}
+
+.kpi-group-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.kpi-grid-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+}
+
+/* Tarjetas de indicadores con alturas iguales y espacio reservado */
+.kpi-card {
+  background: var(--bg-kpi);
+  border: 1px solid var(--border-inner);
+  border-radius: 6px;
+  padding: 16px 18px;
+  min-height: 124px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.kpi-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  line-height: 1.35;
+  min-height: 38px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.kpi-value {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 4px 0;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.kpi-subtext {
+  font-size: 14px;
+  color: var(--text-secondary);
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Section 2: Mexico Vector Map Layout (2/3 Map, 1/3 Ficha Panel)
+   ========================================================================== */
+.map-layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .map-layout-grid { grid-template-columns: 1fr; }
+}
+
+/* Map Legend (18x18px swatches, clear horizontal spacing) */
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--bg-kpi);
+  border: 1px solid var(--border-inner);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.map-container-wrapper {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  background: #F8FAFC;
+  border-radius: 6px;
+  border: 1px solid var(--border-inner);
+  overflow: hidden;
+}
+
+.maplibre-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* MapLibre Canvas Customization */
+.maplibregl-canvas {
+  outline: none;
+}
+
+.maplibregl-ctrl-bottom-right, .maplibregl-ctrl-bottom-left {
+  display: none !important; /* Minimalist clean canvas */
+}
+
+/* Navigation Toolbar (+, -, Ver México, Ampliar centro) */
+.map-nav-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-main);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(4px);
+}
+
+.map-tool-btn {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border: 1px solid var(--border-inner);
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.map-tool-btn:hover {
+  background: var(--primary-blue);
+  color: #FFFFFF;
+  border-color: var(--primary-blue);
+}
+
+.map-tool-btn.text-tool {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 10px;
+}
+
+/* Map Hover / Click Tooltip */
+.map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 500;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.map-tooltip.hidden { display: none; }
+.map-tooltip strong { color: #60A5FA; font-weight: 700; }
+
+/* State Ficha Side Panel (Separadores suaves 1px #CBD5E1 y texto >=14px) */
+.ficha-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ficha-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-inner);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.ficha-row strong {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha-row strong.text-accent {
+  color: var(--primary-blue);
+}
+
+/* ==========================================================================
+   Section 3 & Charts Grid
+   ========================================================================== */
+.chart-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .chart-grid-2 { grid-template-columns: 1fr; }
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 320px;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.badge-critica { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+.badge-media { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+.badge-baja { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+
+/* Buttons Explícame esta gráfica */
+.btn-explain-chart {
+  background: #EFF6FF;
+  color: var(--primary-blue);
+  border: 1px solid var(--border-inner);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-explain-chart:hover {
+  background: var(--primary-blue);
+  color: #FFFFFF;
+  border-color: var(--primary-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   Section 4: Data Table
+   ========================================================================== */
+.table-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.table-responsive {
+  width: 100%;
+  max-height: 420px;
+  overflow-y: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-inner);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-kpi);
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border-inner);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.data-table th:hover {
+  background: #E2E8F0;
+}
+
+.data-table th.sorted-active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-inner);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.data-table tr:hover {
+  background: var(--primary-light);
+}
+
+.text-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Section 5: Methodology Collapsible Panel & Math
+   ========================================================================== */
+details.methodology-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+details.methodology-panel summary {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
+.methodology-content {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.math-formula, .formula-box {
+  background: #F8FAFC;
+  border: 1px solid var(--border-inner);
+  border-left: 3px solid var(--primary-blue);
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.formula-box strong, .math-formula strong {
+  color: var(--primary-blue);
+  display: block;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   AI Assistant Widget (Clean Executive Light Theme)
+   ========================================================================== */
+.chat-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 22px;
+  background: var(--primary-blue);
+  color: #FFFFFF;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 2000;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+.chat-toggle:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.chat-box {
+  position: fixed;
+  bottom: 75px;
+  right: 20px;
+  width: 420px;
+  height: 560px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-main);
+  border-radius: 10px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.chat-box.expanded {
+  width: 540px;
+  height: 660px;
+}
+
+.chat-box.hidden { display: none; }
+
+.chat-header {
+  background: var(--bg-kpi);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-inner);
+}
+
+.chat-header-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.chat-header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.chat-header-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.chat-header-btn:hover {
+  background: var(--border-inner);
+  color: var(--text-primary);
+}
+
+.chat-context-bar {
+  background: #EFF6FF;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-inner);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-context-bar strong {
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.chat-msg-user {
+  background: var(--primary-blue);
+  color: #FFFFFF;
+  align-self: flex-end;
+  padding: 10px 14px;
+  border-radius: 12px 12px 2px 12px;
+  max-width: 85%;
+}
+
+.chat-msg-bot {
+  background: var(--bg-kpi);
+  color: var(--text-primary);
+  align-self: flex-start;
+  padding: 10px 14px;
+  border-radius: 12px 12px 12px 2px;
+  max-width: 90%;
+  border: 1px solid var(--border-inner);
+}
+
+.chat-loading {
+  font-style: italic;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-kpi);
+  border-radius: 8px;
+  align-self: flex-start;
+}
+
+.chat-action-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-inner);
+}
+
+.btn-chat-action {
+  background: #FFFFFF;
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-chat-action:hover {
+  background: var(--primary-blue);
+  color: #FFFFFF;
+}
+
+.chat-chips-bar {
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  background: var(--bg-kpi);
+  border-top: 1px solid var(--border-inner);
+}
+
+.chip {
+  background: #FFFFFF;
+  color: var(--primary-blue);
+  border: 1px solid var(--border-inner);
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  background: var(--primary-blue);
+  color: #FFFFFF;
+  border-color: var(--primary-blue);
+}
+
+.chat-input-bar {
+  display: flex;
+  padding: 10px 12px;
+  background: #FFFFFF;
+  gap: 8px;
+  border-top: 1px solid var(--border-inner);
+}
+
+.chat-input-bar input {
+  flex: 1;
+  background: var(--bg-control);
+  border: 1px solid var(--border-main);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.chat-input-bar input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.chat-input-bar button {
+  background: var(--primary-blue);
+  border: none;
+  color: #FFFFFF;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.chat-input-bar button:hover {
+  background: var(--primary-hover);
+}
+
+/* ==========================================================================
+   Print / Export Support
+   ========================================================================== */
+@media print {
+  body { background: #FFFFFF !important; color: #000000 !important; }
+  .navbar, .controls-bar, .chat-toggle, .chat-box, .btn-export, .btn-reset { display: none !important; }
+  .dashboard-container { max-width: 100% !important; padding: 0 !important; }
+  .dashboard-card, .kpi-card { background: #FFFFFF !important; border: 1px solid #CCCCCC !important; color: #000000 !important; box-shadow: none !important; }
+  .kpi-value, .card-title, td { color: #000000 !important; }
+}

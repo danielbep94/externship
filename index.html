@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chubb Auto Analytics — Dashboard Actuarial de Severidad</title>
+  
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- MapLibre GL JS (WebGL Vector Engine) CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css?v=20261009_v4">
+</head>
+<body>
+
+  <!-- Compact Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-logo">CHUBB Analytics</div>
+    </div>
+    
+    <ul class="nav-tabs" id="navTabs">
+      <li><a href="#secResumen" class="nav-link active">Resumen</a></li>
+      <li><a href="#secMapa" class="nav-link">Mapa</a></li>
+      <li><a href="#secComparativas" class="nav-link">Comparativas</a></li>
+      <li><a href="#secDatos" class="nav-link">Datos</a></li>
+      <li><a href="#secMetodologia" class="nav-link">Metodología</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="btn-export" id="btnExport">Exportar</button>
+    </div>
+  </header>
+
+  <!-- Global Filter Controls Bar -->
+  <div class="controls-bar">
+    <div class="filter-group">
+      <label for="selectYear" class="filter-label">Año:</label>
+      <select id="selectYear" class="form-select">
+        <option value="ALL" selected>Todos (Promedio 2020–2024)</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="selectState" class="filter-label">Estado:</label>
+      <select id="selectState" class="form-select">
+        <option value="ALL" selected>Nacional (32 Entidades)</option>
+      </select>
+    </div>
+
+    <div class="filter-group-end">
+      <span class="context-badge" id="activeContextBadge">Nacional · Promedio 2020–2024</span>
+      <button class="btn-reset" id="btnResetFilters">Restablecer Filtros</button>
+    </div>
+  </div>
+
+  <!-- Data Loading Error Banner (Hidden by default) -->
+  <div id="dataErrorBanner" class="error-banner hidden">
+    <span>⚠️ No fue posible cargar los datos. Comprueba la conexión o la disponibilidad del archivo fuente.</span>
+    <button class="btn-retry" id="btnRetryLoad">Reintentar</button>
+  </div>
+
+  <!-- Main Container -->
+  <main class="dashboard-container">
+
+    <!-- Section 1: KPI Split Container (Resumen Nacional vs Ficha del Estado Seleccionado) -->
+    <section id="secResumen" class="kpi-split-container">
+      <!-- Left Box: Resumen Nacional -->
+      <div class="kpi-group-box">
+        <div class="kpi-group-title">Resumen Nacional</div>
+        <div class="kpi-grid-inner">
+          <div class="kpi-card">
+            <div class="kpi-title">Severidad Promedio Nacional</div>
+            <div class="kpi-value" id="kpiNatAvg">-</div>
+            <div class="kpi-subtext">por siniestro asegurado</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Costo Anual Total</div>
+            <div class="kpi-value" id="kpiNatMdp">-</div>
+            <div class="kpi-subtext">Millones de Pesos (MDP)</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Predictor #1 (Precio Auto)</div>
+            <div class="kpi-value" id="kpiNatDriver">-</div>
+            <div class="kpi-subtext" id="kpiNatDriverSub">r = +0.8488 | R² = 72.0%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Concentración Pareto (Top 5)</div>
+            <div class="kpi-value" id="kpiNatPareto">-</div>
+            <div class="kpi-subtext">del costo total nacional</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Box: Ficha del Estado Seleccionado -->
+      <div class="kpi-group-box">
+        <div class="kpi-group-title" id="kpiStateBoxTitle">Ficha del Estado (Sin Selección)</div>
+        <div class="kpi-grid-inner">
+          <div class="kpi-card">
+            <div class="kpi-title">Severidad Promedio Estatal</div>
+            <div class="kpi-value" id="kpiStateSev"><span style="font-size:1.05rem; color:#64748B; font-weight:600;">Selecciona un estado</span></div>
+            <div class="kpi-subtext" id="kpiStateDiff">Haz clic en el mapa o selector</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title" id="kpiStateGrowthTitle">Mayor Crecimiento (2020–2024)</div>
+            <div class="kpi-value" id="kpiStateGrowth">-</div>
+            <div class="kpi-subtext" id="kpiStateGrowthSub">incremento acumulado</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Costo Medio / Auto Registrado</div>
+            <div class="kpi-value" id="kpiStateCostAuto"><span style="font-size:1.05rem; color:#64748B; font-weight:600;">Selecciona un estado</span></div>
+            <div class="kpi-subtext">vehículos en circulación</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Nivel de Severidad</div>
+            <div class="kpi-value" id="kpiStateBadge"><span class="badge" style="background:#E2E8F0; color:#475569; border:1px solid #CBD5E1;">Vista Nacional</span></div>
+            <div class="kpi-subtext" id="kpiStateMdpSub">32 entidades vinculadas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Mexico WebGL Map & Severity Scale Legend (MapLibre GL JS + INEGI) -->
+    <section id="secMapa" class="map-layout-grid">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-title">Severidad por estado</div>
+            <div class="card-subtitle">Fuente: Marco Geoestadístico INEGI</div>
+          </div>
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-color" style="background:#93C5FD; border:1px solid #60A5FA;"></div> <span>Baja: menos de $7,500 MXN</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#2563EB; border:1px solid #1D4ED8;"></div> <span>Media: $7,500 a $11,000 MXN</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#172554; border:1px solid #0F172A;"></div> <span>Crítica: más de $11,000 MXN</span></div>
+            <div class="legend-item" id="legendSinDatos" style="display:none;" title="Consultar estados sin información"><div class="legend-color" style="background:#D1D5DB; border:1px solid #9CA3AF;"></div> <span id="legendSinDatosText">Sin datos</span></div>
+          </div>
+        </div>
+
+        <div class="map-container-wrapper" id="mapWrapper">
+          <!-- WebGL Map Container for MapLibre -->
+          <div id="maplibreContainer" class="maplibre-container"></div>
+
+          <!-- Quick Navigation Exploration Controls -->
+          <div class="map-nav-toolbar">
+            <button id="btnMapZoomIn" class="map-tool-btn" title="Acercar">+</button>
+            <button id="btnMapZoomOut" class="map-tool-btn" title="Alejar">−</button>
+            <button id="btnMapReset" class="map-tool-btn text-tool" title="Ver México Completo">Ver México</button>
+            <button id="btnMapCenter" class="map-tool-btn text-tool" title="Ampliar Zona Centro (CDMX y alrededores)">Ampliar centro</button>
+          </div>
+
+          <!-- Interactive Hover Tooltip -->
+          <div id="mapTooltip" class="map-tooltip hidden"></div>
+        </div>
+      </div>
+
+      <!-- State Selected Ficha Panel -->
+      <div class="dashboard-card" id="stateFichaPanel">
+        <div class="card-title-group">
+          <div class="card-title" id="fichaStateName">Selecciona un Estado</div>
+          <div class="card-subtitle">Haz clic en un estado del mapa o usa el selector</div>
+        </div>
+        <div class="ficha-details-grid">
+          <div class="ficha-row"><span>Nivel de Severidad:</span> <strong id="fichaCategoria"><span class="badge" style="background:#E2E8F0; color:#475569; border:1px solid #CBD5E1;">Vista Nacional</span></strong></div>
+          <div class="ficha-row"><span>Severidad Promedio:</span> <strong id="fichaSev">Selecciona un estado</strong></div>
+          <div class="ficha-row"><span>Diferencia vs Nacional:</span> <strong id="fichaDiff" class="text-accent">Selecciona un estado</strong></div>
+          <div class="ficha-row"><span>Índice Relativo:</span> <strong id="fichaIndex">Selecciona un estado</strong></div>
+          <div class="ficha-row"><span>Costo Total Ocurrido:</span> <strong id="fichaMdp">Selecciona un estado</strong></div>
+          <div class="ficha-row"><span>Parque Vehicular Registrado:</span> <strong id="fichaAutos">Selecciona un estado</strong></div>
+          <div class="ficha-row"><span>Precio Promedio Auto (ML):</span> <strong id="fichaPrecioAuto">Selecciona un estado</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Comparativas (Pareto Real, Scatter Plot Anotado & Tendencia) -->
+    <section id="secComparativas" class="chart-grid-2">
+      <!-- Pareto Chart Real -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title">Diagrama Pareto (Costo MDP + % Acumulado)</div>
+          <button class="btn-explain-chart" onclick="window.explainChartInChat('pareto')">💡 Explícame esta gráfica</button>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartPareto"></canvas>
+        </div>
+      </div>
+
+      <!-- Scatter Plot -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-title">Precio del vehículo y severidad</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="badge badge-media" id="scatterStatsBadge">r = +0.8488 | R² = 0.7205</span>
+            <button class="btn-explain-chart" onclick="window.explainChartInChat('scatter')">💡 Explícame esta gráfica</button>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartScatter"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Time Series Trend Chart -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div class="card-title" id="trendChartTitle">Tendencia de Severidad (2020–2024)</div>
+        <button class="btn-explain-chart" onclick="window.explainChartInChat('trend')">💡 Explícame esta gráfica</button>
+      </div>
+      <div class="chart-wrapper" style="height: 320px;">
+        <canvas id="chartTrend"></canvas>
+      </div>
+    </div>
+
+    <!-- Section 4: Data Table with Search next to title -->
+    <section id="secDatos" class="dashboard-card">
+      <div class="table-header-bar">
+        <div class="card-title">Matriz Estatal de Severidad</div>
+        <div class="filter-group">
+          <label for="tableSearchInput" class="filter-label">Buscar:</label>
+          <input type="text" id="tableSearchInput" class="form-input" placeholder="Filtrar por estado..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table" id="statesTable">
+          <thead>
+            <tr>
+              <th data-sort="entidad">Entidad Federativa ⇕</th>
+              <th data-sort="severidad" class="text-right" id="thTableSev">Severidad ($) ⇕</th>
+              <th data-sort="relIndex" class="text-right" id="thTableIndex">Índice Relativo ⇕</th>
+              <th data-sort="cagr_2020_2024_pct" class="text-right" id="thTableCagr" title="Crecimiento acumulado en el periodo 2020–2024">Crecimiento Acumulado ⇕</th>
+              <th data-sort="costo_por_auto_registrado" class="text-right">Costo / Auto ⇕</th>
+              <th data-sort="mdp" class="text-right" id="thTableMdp">Costo Total (MDP) ⇕</th>
+              <th data-sort="categoria_severidad" class="text-right">Nivel de Severidad ⇕</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Table Rows loaded by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 5: Methodology Panel Collapsible Accordion -->
+    <section id="secMetodologia">
+      <details class="methodology-panel" id="metodologiaDetails">
+        <summary>🔬 Metodología, Definiciones Actuariales y Fechas de Corte</summary>
+        <div class="methodology-content" id="methodologyContent">
+          <div>
+            <h4 style="color:#1D4ED8; margin-bottom:6px;">📐 Definición de Severidad:</h4>
+            <p>La Severidad es el costo económico promedio pagado por cada siniestro o reclamo ocurrido:</p>
+            <div class="math-formula">
+              <strong>Fórmula actuarial:</strong>
+              Severidad (MXN) = Costo Total Ocurrido (Pesos) / Número de Siniestros Pagados
+            </div>
+          </div>
+          <div>
+            <h4 style="color:#1D4ED8; margin-bottom:6px;">🚗 Exposición Asegurada vs. Parque Registrado:</h4>
+            <p>• Los datos de volumen corresponden a <strong>Vehículos de Motor Registrados en Circulación (INEGI VMRC)</strong>.<br/>
+            • <em>Aclaración conceptual:</em> El parque vehicular registrado representa la escala del parque automotriz estatal, pero <strong>no equivale a la exposición asegurada</strong> (unidades con seguro vigente). En México la penetración del seguro automotriz varía entre entidades y no se dispone del conteo directo de pólizas aseguradas para aislar la frecuencia pura.</p>
+          </div>
+          <div>
+            <h4 style="color:#1D4ED8; margin-bottom:6px;">🔬 Rigor Estadístico de Correlación:</h4>
+            <p>La correlación con el <strong>Precio Promedio del Auto</strong> es <strong>r = +0.8488</strong>, <strong>R² = 72.05%</strong> y <strong>p &lt; 0.0001</strong> (calculados sobre el promedio 2020–2024). <em>Nota actuarial: La correlación describe asociación lineal macroestatal agregada; no demuestra causalidad directa entre variables ni sustituye la tarificación por tipo de póliza.</em></p>
+          </div>
+          <div>
+            <h4 style="color:#1D4ED8; margin-bottom:6px;">🗓️ Fechas de Corte de Fuentes:</h4>
+            <p>• Siniestros Chubb Baseline: 2020–2024<br/>• INEGI Censo: 2020<br/>• INEGI VMRC (Autos Registrados): 2020–2024<br/>• Mercado Libre: Muestra 2024</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+  </main>
+
+  <!-- AI Assistant Chatbot Widget -->
+  <button class="chat-toggle" id="btnToggleChat" title="Asistente de análisis">💬 Asistente</button>
+
+  <div class="chat-box hidden" id="chatWindow">
+    <div class="chat-header">
+      <div class="chat-header-title">🤖 Asistente de análisis</div>
+      <div class="chat-header-actions">
+        <button id="btnCopyChat" title="Copiar última respuesta" class="chat-header-btn">📋</button>
+        <button id="btnNewChat" title="Nueva conversación" class="chat-header-btn">🔄</button>
+        <button id="btnExpandChat" title="Ampliar panel" class="chat-header-btn">⛶</button>
+        <button id="btnCloseChat" title="Cerrar" class="chat-header-btn">✕</button>
+      </div>
+    </div>
+
+    <!-- Active Filter Context Banner -->
+    <div class="chat-context-bar" id="chatContextBar">
+      <span>Contexto:</span> <strong id="chatContextPill">Nacional · Promedio 2020–2024</strong>
+    </div>
+
+    <!-- Message Stream -->
+    <div class="chat-messages" id="chatMessages">
+      <!-- Dynamically filled by app.js -->
+    </div>
+
+    <!-- Suggested Quick Chips -->
+    <div class="chat-chips-bar">
+      <button class="chip" data-query="Analizar Nuevo León">💡 Analizar Nuevo León</button>
+      <button class="chip" data-query="Comparar Nuevo León y Jalisco, promedio 2020–2024">⚖️ Comparar NL y Jalisco</button>
+      <button class="chip" data-query="Explicar barras, línea y ejes de Pareto">📊 Explicar Pareto</button>
+      <button class="chip" data-query="Explicar R² y el 72.05%">📈 Explicar R² (72.05%)</button>
+      <button class="chip" data-query="Contar el reporte en tres hallazgos">📝 3 hallazgos clave</button>
+      <button class="chip" data-query="Glosario de severidad, frecuencia, índice relativo y MDP">📖 Glosario</button>
+    </div>
+
+    <!-- Input Box -->
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="Escribe tu pregunta (ej: ¿Y en 2023?)..." autocomplete="off">
+      <button id="btnSendChat">Enviar</button>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=20261009_v5"></script>
+</body>
+</html>
