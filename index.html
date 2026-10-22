@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Externship — Dashboard Actuarial de Severidad</title>
+  <title>Score Nacional de Severidad — Externship</title>
   
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -22,15 +22,17 @@
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=20261021_v1">
+  <link rel="stylesheet" href="css/styles.css?v=20261021_v2">
 </head>
 <body>
 
   <!-- Compact Navbar -->
   <header class="navbar">
     <div class="nav-brand">
-      <a href="#secResumen" class="brand-link" title="Externship — Dashboard Actuarial">
+      <a href="#secResumen" class="brand-link" title="Externship — Score Nacional de Severidad">
         <img src="assets/externship_logo_transparent.png" alt="Externship" class="brand-logo-img">
+        <span class="brand-divider"></span>
+        <span class="brand-title">Score Nacional de Severidad</span>
       </a>
     </div>
     
@@ -82,6 +84,14 @@
 
   <!-- Main Container -->
   <main class="dashboard-container">
+
+    <!-- Executive Report Header -->
+    <header class="report-header">
+      <div class="report-header-content">
+        <h1 class="report-title">Score Nacional de Severidad</h1>
+        <p class="report-subtitle">Dashboard Actuarial de Siniestros Automotrices · Monitoreo y Análisis de Severidad en México (2020–2024)</p>
+      </div>
+    </header>
 
     <!-- Section 1: KPI Split Container (Resumen Nacional vs Ficha del Estado Seleccionado) -->
     <section id="secResumen" class="kpi-split-container">
@@ -333,6 +343,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20261021_v1"></script>
+  <script src="js/app.js?v=20261021_v2"></script>
 </body>
 </html>
