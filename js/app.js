@@ -71,12 +71,12 @@ function levenshteinSimilarity(s1, s2) {
   return 1.0 - dist / Math.max(a.length, b.length);
 }
 
-// High-Contrast Blue Severity Scale Mapping with Precise Brackets
+// Traffic Light Severity Scale Mapping with Precise Brackets (Verde, Amarillo, Rojo)
 function getSeverityColor(sevVal) {
   if (sevVal === null || sevVal === undefined || isNaN(sevVal)) return '#D1D5DB'; // Sin datos (Gris)
-  if (sevVal > 11000) return '#172554'; // Crítica: > $11,000 MXN (Azul marino profundo)
-  if (sevVal >= 7500) return '#2563EB';  // Media: $7,500 a $11,000 MXN (inclusive, Azul más intenso)
-  return '#93C5FD';                      // Baja: < $7,500 MXN (Azul claro visible)
+  if (sevVal > 11000) return '#EF4444'; // Crítica: > $11,000 MXN (Rojo carmesí)
+  if (sevVal >= 7500) return '#F59E0B';  // Media: $7,500 a $11,000 MXN (Amarillo / Ámbar)
+  return '#10B981';                      // Baja: < $7,500 MXN (Verde esmeralda)
 }
 
 // 1. Initialize Application
@@ -370,7 +370,7 @@ function initMapLibreMap() {
           type: 'fill',
           source: 'mexico-states',
           paint: {
-            'fill-color': '#93C5FD',
+            'fill-color': '#10B981',
             'fill-opacity': 1.0 // Totalmente opaco (sin transparencias)
           }
         },

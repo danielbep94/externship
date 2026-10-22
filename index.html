@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chubb Auto Analytics — Dashboard Actuarial de Severidad</title>
+  <title>Externship — Dashboard Actuarial de Severidad</title>
   
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -22,14 +22,16 @@
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=20261009_v4">
+  <link rel="stylesheet" href="css/styles.css?v=20261021_v1">
 </head>
 <body>
 
   <!-- Compact Navbar -->
   <header class="navbar">
     <div class="nav-brand">
-      <div class="brand-logo">CHUBB Analytics</div>
+      <a href="#secResumen" class="brand-link" title="Externship — Dashboard Actuarial">
+        <img src="assets/externship_logo_transparent.png" alt="Externship" class="brand-logo-img">
+      </a>
     </div>
     
     <ul class="nav-tabs" id="navTabs">
@@ -147,9 +149,9 @@
             <div class="card-subtitle">Fuente: Marco Geoestadístico INEGI</div>
           </div>
           <div class="map-legend">
-            <div class="legend-item"><div class="legend-color" style="background:#93C5FD; border:1px solid #60A5FA;"></div> <span>Baja: menos de $7,500 MXN</span></div>
-            <div class="legend-item"><div class="legend-color" style="background:#2563EB; border:1px solid #1D4ED8;"></div> <span>Media: $7,500 a $11,000 MXN</span></div>
-            <div class="legend-item"><div class="legend-color" style="background:#172554; border:1px solid #0F172A;"></div> <span>Crítica: más de $11,000 MXN</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#10B981; border:1px solid #059669;"></div> <span>Baja: menos de $7,500 MXN</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#F59E0B; border:1px solid #D97706;"></div> <span>Media: $7,500 a $11,000 MXN</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#EF4444; border:1px solid #DC2626;"></div> <span>Crítica: más de $11,000 MXN</span></div>
             <div class="legend-item" id="legendSinDatos" style="display:none;" title="Consultar estados sin información"><div class="legend-color" style="background:#D1D5DB; border:1px solid #9CA3AF;"></div> <span id="legendSinDatosText">Sin datos</span></div>
           </div>
         </div>
@@ -331,6 +333,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20261009_v5"></script>
+  <script src="js/app.js?v=20261021_v1"></script>
 </body>
 </html>

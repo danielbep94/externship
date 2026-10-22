@@ -25,10 +25,10 @@
   --primary-hover: #1E40AF;
   --primary-light: #EFF6FF;
   
-  /* Map Severity High-Contrast Scale */
-  --map-sev-baja: #93C5FD;    /* Azul más visible (< $7.5k MXN) */
-  --map-sev-media: #2563EB;   /* Azul claramente más intenso ($7.5k - $11k MXN) */
-  --map-sev-critica: #172554; /* Azul marino profundo (> $11k MXN) */
+  /* Map Severity Traffic Light Scale (Verde, Amarillo, Rojo) */
+  --map-sev-baja: #10B981;    /* Verde esmeralda (< $7.5k MXN) */
+  --map-sev-media: #F59E0B;   /* Amarillo / Ámbar ($7.5k - $11k MXN) */
+  --map-sev-critica: #EF4444; /* Rojo carmesí (> $11k MXN) */
   --map-sin-datos: #D1D5DB;   /* Gris neutro */
   --map-border: #64748B;      /* Límites estatales Slate 500 */
   --map-selected: #0F172A;    /* Contorno oscuro seleccionado */
@@ -77,6 +77,34 @@ section[id] {
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--shadow-sm);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%;
+}
+
+.brand-logo-img {
+  height: 38px;
+  width: auto;
+  max-width: 175px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.brand-link:hover .brand-logo-img {
+  opacity: 0.92;
+  transform: scale(1.02);
 }
 
 .brand-logo {
@@ -565,7 +593,7 @@ section[id] {
 
 .badge-critica { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
 .badge-media { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-.badge-baja { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+.badge-baja { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
 
 /* Buttons Explícame esta gráfica */
 .btn-explain-chart {
