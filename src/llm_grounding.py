@@ -8,6 +8,7 @@ Implementa:
 """
 
 import json
+import re
 from typing import Dict, List, Any, Optional, Union
 from actuarial_core import (
     ActuarialDataValidator,
@@ -21,15 +22,118 @@ class QueryValidationError(Exception):
     """Lanzada cuando el JSON estructurado generado no supera las reglas previas a la ejecución."""
     pass
 
+class HallucinationDetectedError(Exception):
+    """Lanzada cuando la salida del LLM contiene cifras no presentes en el payload grounded."""
+    pass
+
 class LLMProvider:
     """Interfaz base para proveedores de LLM (Llama-3, Ollama, API, etc.)."""
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         raise NotImplementedError
 
 class MockLlama3Provider(LLMProvider):
-    """Proveedor de prueba o fallback que simula la síntesis de lenguaje natural con base en el payload grounded."""
+    """Proveedor simulado para pruebas de integración grounded."""
+    def __init__(self, hallucinate: bool = False):
+        self.hallucinate = hallucinate
+
     def generate(self, system_prompt: str, user_prompt: str) -> str:
+        if self.hallucinate:
+            return f"[Llama-3 Alucinación]: La severidad en este estado es de $999,999.00 MXN y 99.9% de riesgo."
         return f"[Llama-3 Grounded Response]\n{user_prompt}"
+
+class OllamaProvider(LLMProvider):
+    """Conector real con servidor local o remoto Ollama (Llama-3)."""
+    def __init__(self, model: str = "llama3:8b", endpoint: str = "http://localhost:11434/api/generate", timeout: float = 15.0):
+        self.model = model
+        self.endpoint = endpoint
+        self.timeout = timeout
+
+    def generate(self, system_prompt: str, user_prompt: str) -> str:
+        import urllib.request
+        import urllib.error
+        payload = {
+            "model": self.model,
+            "system": system_prompt,
+            "prompt": user_prompt,
+            "stream": False
+        }
+        data_bytes = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(self.endpoint, data=data_bytes, headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                result = json.loads(resp.read().decode('utf-8'))
+                return result.get("response", "")
+        except Exception as e:
+            raise ConnectionError(f"Error al conectar con servidor Ollama Llama-3: {e}") from e
+
+class OpenAICompatibleProvider(LLMProvider):
+    """Conector para endpoints compatibles con OpenAI (vLLM, Groq, Colab, etc.)."""
+    def __init__(self, api_url: str, api_key: str = "EMPTY", model: str = "llama-3-8b-instruct", timeout: float = 15.0):
+        self.api_url = api_url.rstrip('/') + "/chat/completions"
+        self.api_key = api_key
+        self.model = model
+        self.timeout = timeout
+
+    def generate(self, system_prompt: str, user_prompt: str) -> str:
+        import urllib.request
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": 0.0
+        }
+        data_bytes = json.dumps(payload).encode('utf-8')
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        req = urllib.request.Request(self.api_url, data=data_bytes, headers=headers)
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            result = json.loads(resp.read().decode('utf-8'))
+            return result["choices"][0]["message"]["content"]
+
+class ActuarialOutputVerifier:
+    """
+    Guardrail Post-Generación: Audita el texto generado por el LLM antes de mostrarlo.
+    Extrae cualquier cifra monetaria ($...) o porcentaje (%) y verifica que exista
+    dentro del grounding_payload numérico permitido. Si encuentra una cifra inventada,
+    rechaza la salida para evitar alucinaciones.
+    """
+    @classmethod
+    def verify(cls, generated_text: str, allowed_numbers: List[float], tolerance: float = 0.5) -> bool:
+        # Extraer montos en pesos: $13,970.61 o $13970
+        amounts = re.findall(r'\$\s*([0-9,]+(?:\.[0-9]+)?)', generated_text)
+        # Extraer porcentajes: 47.1% o 150.6%
+        percentages = re.findall(r'([0-9]+(?:\.[0-9]+)?)\s*%', generated_text)
+
+        extracted_floats = []
+        for amt in amounts:
+            cleaned = amt.replace(',', '')
+            try:
+                extracted_floats.append(float(cleaned))
+            except ValueError:
+                pass
+
+        for pct in percentages:
+            try:
+                extracted_floats.append(float(pct))
+            except ValueError:
+                pass
+
+        # Validar cada cifra contra la lista de números autorizados en el payload
+        for num in extracted_floats:
+            # Ignorar 100% o 1 MDP o constantes estándar
+            if num in {1.0, 100.0, 1000000.0}:
+                continue
+            is_valid = any(abs(num - allowed) <= tolerance for allowed in allowed_numbers)
+            if not is_valid:
+                raise HallucinationDetectedError(
+                    f"Cifra alucinada detectada en la salida del LLM: {num}. No coincide con el payload actuarial."
+                )
+
+        return True
 
 class ActuarialQueryParser:
     """

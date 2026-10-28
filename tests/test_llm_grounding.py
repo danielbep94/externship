@@ -75,5 +75,27 @@ class TestLLMGrounding(unittest.TestCase):
         self.assertIn("Identidad actuarial", response)
         self.assertIn("no equivalen a la exposición asegurada", response)
 
+    def test_post_generation_verifier_approves_grounded_numbers(self):
+        """Verifica que el verificador aprueba textos con cifras autorizadas."""
+        from llm_grounding import ActuarialOutputVerifier
+        valid_text = "La severidad de Nuevo León es de $13,970.61 MXN con un índice de 209.3 pts y 47.1% en Pareto."
+        allowed = [13970.61, 209.3, 47.1]
+        self.assertTrue(ActuarialOutputVerifier.verify(valid_text, allowed))
+
+    def test_post_generation_verifier_intercepts_hallucinations(self):
+        """Verifica que el verificador detecta y arroja error ante cifras inventadas por el LLM."""
+        from llm_grounding import ActuarialOutputVerifier, HallucinationDetectedError
+        hallucinated_text = "La severidad inventada es de $99,999.00 MXN con 85.5% de riesgo."
+        allowed = [13970.61, 10824.52] # 99,999 no está permitido
+        with self.assertRaises(HallucinationDetectedError):
+            ActuarialOutputVerifier.verify(hallucinated_text, allowed)
+
+    def test_ollama_provider_connection_error_handling(self):
+        """Verifica que el conector de Ollama maneja fallas de red de forma limpia."""
+        from llm_grounding import OllamaProvider
+        offline_provider = OllamaProvider(endpoint="http://127.0.0.1:54321/api/generate", timeout=0.1)
+        with self.assertRaises(ConnectionError):
+            offline_provider.generate("system", "prompt")
+
 if __name__ == '__main__':
     unittest.main()
