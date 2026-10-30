@@ -20,6 +20,8 @@ def run_performance_and_accuracy_benchmark():
     
     # 1. Valores esperados dinámicos desde data.json
     nl_sev = estados_dict['Nuevo Leon']['severidad_promedio']
+    nl_2023_sev = estados_dict['Nuevo Leon']['yearly_severidad']['2023']
+    nl_2024_sev = estados_dict['Nuevo Leon']['yearly_severidad']['2024']
     qro_sev = estados_dict['Queretaro']['severidad_promedio']
     sin_sev = estados_dict['Sinaloa']['severidad_promedio']
     jal_sev = estados_dict['Jalisco']['severidad_promedio']
@@ -38,7 +40,9 @@ def run_performance_and_accuracy_benchmark():
         ("7. Drivers de Impacto (Correlación)", "¿Qué variables afectan más la severidad?", r_corr),
         ("8. Minúsculas/Sin Acentos 'ciudad de mexico'", "ciudad de mexico", cdmx_sev),
         ("9. Exact Match 'Yucatan'", "Yucatan", yuc_sev),
-        ("10. Pregunta Fuera de Ámbito", "Clima en Guadalajara", None)
+        ("10. Pregunta Fuera de Ámbito", "Clima en Guadalajara", None),
+        ("11. Resumen Ejecutivo Multistate 2023", "Crea un resumen ejecutivo de Nuevo León y Jalisco para el año 2023", nl_2023_sev),
+        ("12. Resumen Ejecutivo Año Omitido (Default 2024)", "Resumen ejecutivo de Nuevo León y Jalisco", nl_2024_sev)
     ]
     
     print("=" * 82)

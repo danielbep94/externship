@@ -98,7 +98,7 @@ for state, group in df.groupby('entidad'):
         'yearly_severidad': yearly_sev,
         'yearly_mdp': yearly_mdp,
         'yearly_categoria': {
-            y: ('Critica' if val > 11000 else ('Media' if val >= 7500 else 'Baja'))
+            y: ('Critica' if val >= 11000 else ('Media' if val >= 7500 else 'Baja'))
             for y, val in yearly_sev.items()
         }
     })

@@ -1,0 +1,139 @@
+{
+  "version": "1.0.0",
+  "valid_years": [2020, 2021, 2022, 2023, 2024],
+  "default_year": 2024,
+  "base_year": 2020,
+  "national_reference": {
+    "method": "simple_mean_entities_with_data",
+    "label": "Media de severidad de las entidades con dato"
+  },
+  "category_thresholds": {
+    "critica_min": 11000.0,
+    "media_min": 7500.0,
+    "rule_description": "Crítica: severidad >= 11,000.00 MXN; Media: 7,500.00 <= severidad < 11,000.00 MXN; Baja: severidad < 7,500.00 MXN (umbrales absolutos en MXN nominales)."
+  },
+  "rounding_policy": {
+    "mode": "ROUND_HALF_UP",
+    "thousands_separator": ",",
+    "decimal_separator": ".",
+    "decimals_by_unit": {
+      "MXN": 2,
+      "MDP": 2,
+      "pts": 1,
+      "pct": 1,
+      "r": 4
+    }
+  },
+  "triggers": {
+    "strong_summary": [
+      "resumen",
+      "resumenes",
+      "resumir",
+      "resume",
+      "sintesis",
+      "sintetiza",
+      "sintetizar",
+      "panorama"
+    ],
+    "weak_summary": [
+      "reporte",
+      "informe"
+    ],
+    "creation_verbs": [
+      "crea",
+      "crear",
+      "genera",
+      "generar",
+      "haz",
+      "hacer",
+      "prepara",
+      "preparar",
+      "elabora",
+      "elaborar",
+      "dame",
+      "dar"
+    ],
+    "excluded_standalone": [
+      "ejecutivo",
+      "ejecutiva"
+    ],
+    "continuation_markers": [
+      "tambien",
+      "mismo ano",
+      "ese ano"
+    ],
+    "comparison": [
+      "compara",
+      "comparar",
+      "comparativa",
+      "comparacion",
+      "vs",
+      "versus",
+      "diferencia",
+      "difieren",
+      "contra"
+    ]
+  },
+  "state_aliases": {
+    "cdmx": "Ciudad de Mexico",
+    "df": "Ciudad de Mexico",
+    "distrito federal": "Ciudad de Mexico",
+    "ciudad de mex": "Ciudad de Mexico",
+    "ciudad de mexico": "Ciudad de Mexico",
+    "edomex": "Estado de Mexico",
+    "edo mex": "Estado de Mexico",
+    "estado mex": "Estado de Mexico",
+    "estado de mex": "Estado de Mexico",
+    "estado de mexico": "Estado de Mexico",
+    "nl": "Nuevo Leon",
+    "nvo leon": "Nuevo Leon",
+    "nevo lion": "Nuevo Leon",
+    "nuevo leon": "Nuevo Leon",
+    "regio": "Nuevo Leon",
+    "slp": "San Luis Potosi",
+    "san luis": "San Luis Potosi",
+    "san luis potosi": "San Luis Potosi",
+    "qro": "Queretaro",
+    "queretaro": "Queretaro",
+    "keretaro": "Queretaro",
+    "bc": "Baja California",
+    "baja cal": "Baja California",
+    "baja california norte": "Baja California",
+    "bcs": "Baja California Sur",
+    "baja sur": "Baja California Sur",
+    "chih": "Chihuahua",
+    "coah": "Coahuila",
+    "jal": "Jalisco",
+    "jalisko": "Jalisco",
+    "pue": "Puebla",
+    "tamps": "Tamaulipas",
+    "yuc": "Yucatan",
+    "mich": "Michoacan",
+    "ags": "Aguascalientes",
+    "gto": "Guanajuato",
+    "gro": "Guerrero",
+    "hgo": "Hidalgo",
+    "mor": "Morelos",
+    "nay": "Nayarit",
+    "oax": "Oaxaca",
+    "qroo": "Quintana Roo",
+    "sinaloa": "Sinaloa",
+    "sonora": "Sonora",
+    "tabasco": "Tabasco",
+    "tlaxcala": "Tlaxcala",
+    "zacatecas": "Zacatecas",
+    "camp": "Campeche",
+    "chis": "Chiapas",
+    "dgo": "Durango"
+  },
+  "messages": {
+    "default_year_notice": "No indicaste año; uso 2024, último año disponible.",
+    "national_with_state_note": "Interpreté la consulta como resumen de {entidad} comparado con la media de las entidades con dato.",
+    "duplicate_entity_note": "Las menciones {menciones} corresponden a la misma entidad ({entidad}).",
+    "insufficient_comparison_entities": "Ambas menciones corresponden a {entidad}; indica otra entidad distinta para realizar la comparación.",
+    "year_out_of_range": "⚠️ El año {year} está fuera del periodo disponible (2020–2024). Indica un año dentro de ese rango.",
+    "multiple_years_error": "⚠️ Indica un solo año para el resumen (2020–2024). Detecté múltiples años: {years}.",
+    "missing_metric": "sin dato",
+    "non_calculable": "no calculable"
+  }
+}

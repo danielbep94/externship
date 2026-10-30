@@ -74,8 +74,8 @@ function levenshteinSimilarity(s1, s2) {
 // Traffic Light Severity Scale Mapping with Precise Brackets (Verde, Amarillo, Rojo)
 function getSeverityColor(sevVal) {
   if (sevVal === null || sevVal === undefined || isNaN(sevVal)) return '#D1D5DB'; // Sin datos (Gris)
-  if (sevVal > 11000) return '#EF4444'; // Crítica: > $11,000 MXN (Rojo carmesí)
-  if (sevVal >= 7500) return '#F59E0B';  // Media: $7,500 a $11,000 MXN (Amarillo / Ámbar)
+  if (sevVal >= 11000) return '#EF4444'; // Crítica: >= $11,000 MXN (Rojo carmesí)
+  if (sevVal >= 7500) return '#F59E0B';  // Media: $7,500 a < $11,000 MXN (Amarillo / Ámbar)
   return '#10B981';                      // Baja: < $7,500 MXN (Verde esmeralda)
 }
 
@@ -146,10 +146,10 @@ function getNationalMetricsForPeriod(year = 'ALL') {
     };
   }
 
-  const validStates = rawData.estados.filter(st => st.yearly_severidad && st.yearly_severidad[year] !== undefined);
+  const validStates = rawData.estados.filter(st => st.yearly_severidad && st.yearly_severidad[year] !== undefined && st.yearly_severidad[year] !== null && st.yearly_severidad[year] > 0);
   const avgSev = validStates.length > 0 
     ? validStates.reduce((acc, st) => acc + st.yearly_severidad[year], 0) / validStates.length
-    : rawData.metadata.promedio_nacional_severidad;
+    : null;
   
   const totMdp = rawData.estados.reduce((acc, st) => {
     return acc + (st.yearly_mdp && st.yearly_mdp[year] ? st.yearly_mdp[year] : 0);
@@ -157,6 +157,7 @@ function getNationalMetricsForPeriod(year = 'ALL') {
 
   return {
     natAvg: avgSev,
+    nValid: validStates.length,
     natMdp: totMdp,
     label: `Año ${year}`
   };
@@ -164,7 +165,7 @@ function getNationalMetricsForPeriod(year = 'ALL') {
 
 // Helper: Actuarial Risk Category based on severity value ($ MXN)
 function getSeverityCategory(sevVal) {
-  if (sevVal > 11000) return 'Crítica';
+  if (sevVal >= 11000) return 'Crítica';
   if (sevVal >= 7500) return 'Media';
   return 'Baja';
 }
@@ -176,23 +177,28 @@ function getStateMetricsForPeriod(st, year = 'ALL') {
   
   let sev = st.severidad_promedio;
   let mdp = st.siniestros_ocurridos_mdp_promedio;
+  let storedCat = st.categoria_severidad;
   let hasData = true;
 
   if (year !== 'ALL') {
-    if (st.yearly_severidad && st.yearly_severidad[year] !== undefined) {
+    if (st.yearly_severidad && st.yearly_severidad[year] !== undefined && st.yearly_severidad[year] !== null) {
       sev = st.yearly_severidad[year];
     } else {
+      sev = null;
       hasData = false;
     }
-    if (st.yearly_mdp && st.yearly_mdp[year] !== undefined) {
+    if (st.yearly_mdp && st.yearly_mdp[year] !== undefined && st.yearly_mdp[year] !== null) {
       mdp = st.yearly_mdp[year];
+    } else {
+      mdp = null;
     }
+    storedCat = st.yearly_categoria ? st.yearly_categoria[year] : null;
   }
 
-  const diffAbs = sev - nat.natAvg;
-  const diffPct = ((sev - nat.natAvg) / nat.natAvg) * 100;
-  const relIndex = (sev / nat.natAvg) * 100;
-  const categoria = getSeverityCategory(sev);
+  const diffAbs = (sev !== null && nat.natAvg !== null) ? (sev - nat.natAvg) : 0;
+  const diffPct = (sev !== null && nat.natAvg) ? ((sev - nat.natAvg) / nat.natAvg) * 100 : 0;
+  const relIndex = (sev !== null && nat.natAvg) ? (sev / nat.natAvg) * 100 : 0;
+  const categoria = (sev !== null && storedCat) ? (storedCat === 'Critica' ? 'Crítica' : storedCat) : 'sin dato';
 
   return {
     entidad: st.entidad,
@@ -904,12 +910,15 @@ function setupScrollNavigationObserver() {
 
 // 8. AI Assistant Chatbot Logic with Conversational Context & Grounded Verification
 let chatMemory = {
-  mode: 'none', // 'single', 'comparison', 'glossary', 'chart'
+  mode: 'none', // 'single', 'comparison', 'glossary', 'chart', 'summary'
   lastStates: [],
   lastYear: 'ALL',
   lastTopic: 'severidad',
   lastResponseText: ''
 };
+let engineMemory = (typeof window !== 'undefined' && window.ActuarialEngine)
+  ? new window.ActuarialEngine.MemoryManager()
+  : null;
 
 function updateChatContextPill() {
   const pill = document.getElementById('chatContextPill');
@@ -1016,12 +1025,14 @@ function addChatMessage(text, sender) {
   msgContainer.scrollTop = msgContainer.scrollHeight;
 }
 
-// Helper: Extract up to 2 distinct states mentioned in query preserving appearance order
+// Helper: Extract N distinct states mentioned in query preserving appearance order
 function extractStatesFromQuery(query) {
+  if (typeof window !== 'undefined' && window.ActuarialEngine) {
+    const canonical = (rawData && rawData.estados) ? rawData.estados.map(s => s.entidad) : null;
+    return window.ActuarialEngine.extractStatesDetailed(query, canonical).states;
+  }
   const norm = normalizeStr(query);
   const matches = [];
-
-  // 1. Check aliases
   for (const [alias, realName] of Object.entries(STATE_ALIASES)) {
     const regex = new RegExp(`\\b${alias}\\b`, 'gi');
     let m;
@@ -1029,8 +1040,6 @@ function extractStatesFromQuery(query) {
       matches.push({ name: realName, index: m.index });
     }
   }
-
-  // 2. Check official names
   if (rawData && rawData.estados) {
     for (const st of rawData.estados) {
       const normEnt = normalizeStr(st.entidad);
@@ -1040,18 +1049,13 @@ function extractStatesFromQuery(query) {
       }
     }
   }
-
-  // Sort by appearance order in query
   matches.sort((a, b) => a.index - b.index);
-
-  // Deduplicate
   const result = [];
   for (const m of matches) {
     if (!result.includes(m.name)) {
       result.push(m.name);
     }
   }
-
   return result;
 }
 
@@ -1400,13 +1404,54 @@ function generateComparisonWhyResponse(stNameA, stNameB, period = 'ALL') {
 
 // 10. Main AI Intent Router
 function processAIIntent(userQuery) {
-  const normQ = normalizeStr(userQuery);
+  const normQ = (typeof window !== 'undefined' && window.ActuarialEngine)
+    ? window.ActuarialEngine.normalizeText(userQuery)
+    : normalizeStr(userQuery);
   const activeYearFilter = document.getElementById('selectYear') ? document.getElementById('selectYear').value : 'ALL';
+
+  // Prioridades 1 a 6 vía ActuarialEngine compartido (paridad con Python)
+  if (typeof window !== 'undefined' && window.ActuarialEngine && rawData) {
+    if (!engineMemory) engineMemory = new window.ActuarialEngine.MemoryManager();
+    const canonicalStates = rawData.estados.map(s => s.entidad);
+    const ir = window.ActuarialEngine.parseQueryIR(userQuery, canonicalStates, engineMemory);
+
+    if (ir.intent === 'out_of_domain') {
+      return `🤖 <strong>Asistente de análisis actuarial:</strong><br/>
+La consulta se encuentra fuera del ámbito actuarial del Dataset Actuarial de Severidad de Siniestros de Auto en México (Chubb Baseline 2020–2024).<br/>
+Este asistente solo responde consultas sobre severidad ($ MXN), costo total (MDP), factores de riesgo vehicular e indicadores del reporte.`;
+    }
+
+    if (ir.intent === 'temporal_out_of_range' || ir.intent === 'clarification_year') {
+      return `🤖 <strong>Asistente de análisis actuarial:</strong><br/>${ir.error_message}`;
+    }
+
+    if (ir.intent === 'executive_multistate_summary' || ir.intent === 'executive_single_state_summary') {
+      const summary = window.ActuarialEngine.computeExecutiveSummary(rawData, ir.states, ir.target_year);
+      engineMemory.updateConfirmedContext(ir.states, ir.target_year, ir.intent);
+      chatMemory.mode = 'summary';
+      chatMemory.lastStates = ir.states;
+      chatMemory.lastYear = String(ir.target_year);
+      return window.ActuarialEngine.formatExecutiveSummaryHtml(summary, ir);
+    }
+
+    if (ir.intent === 'three_findings') {
+      chatMemory.mode = 'chart';
+      return generateThreeFindingsResponse();
+    }
+
+    if (ir.intent === 'multi_state_comparison' && ir.insufficient_entities && ir.states.length === 1) {
+      const stName = ir.states[0];
+      const yrUse = ir.target_year ? String(ir.target_year) : activeYearFilter;
+      engineMemory.updateConfirmedContext([stName], ir.target_year, 'single_state');
+      const noteMsg = ir.interpretation_notes[0] || `Ambas menciones corresponden a ${stName}; indica otra entidad para comparar.`;
+      return `ℹ️ <em>${noteMsg}</em><br/><br/>` + generateSingleStateResponse(stName, yrUse);
+    }
+  }
 
   // Determine requested period following the hierarchy:
   // (a) Explicit in query -> (b) Follow-up in memory -> (c) UI Filter
   let requestedPeriod = null;
-  if (normQ.includes('promedio') || normQ.includes('2020-2024') || normQ.includes('2020–2024') || normQ.includes('historico')) {
+  if (normQ.includes('promedio') || normQ.includes('2020 2024') || normQ.includes('2020-2024') || normQ.includes('historico')) {
     requestedPeriod = 'ALL';
   } else {
     const yearMatch = normQ.match(/\b(2020|2021|2022|2023|2024)\b/);
@@ -1416,8 +1461,8 @@ function processAIIntent(userQuery) {
   const periodToUse = requestedPeriod || (chatMemory.lastYear && (normQ.includes('y en') || normQ.includes('mismo')) ? chatMemory.lastYear : activeYearFilter);
   const foundStates = extractStatesFromQuery(userQuery);
 
-  // 1. Three Findings Intent / Executive Summary
-  if (normQ.includes('resumen') || normQ.includes('hallazgo') || normQ.includes('contar el reporte') || normQ.includes('conclusiones') || normQ.includes('sintesis')) {
+  // 1. Three Findings Intent (without states)
+  if ((normQ.includes('hallazgo') || normQ.includes('contar el reporte') || normQ.includes('conclusiones')) && foundStates.length === 0) {
     chatMemory.mode = 'chart';
     return generateThreeFindingsResponse();
   }
@@ -1613,6 +1658,9 @@ function setupEventListeners() {
   if (btnNewChat) {
     btnNewChat.addEventListener('click', () => {
       chatMemory = { mode: 'none', lastStates: [], lastYear: 'ALL', lastTopic: 'severidad', lastResponseText: '' };
+      if (typeof window !== 'undefined' && window.ActuarialEngine) {
+        engineMemory = new window.ActuarialEngine.MemoryManager();
+      }
       renderWelcomeMessage();
     });
   }

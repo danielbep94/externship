@@ -35,9 +35,14 @@ def run_comprehensive_validation():
     
     nl_sev_auth = nl_data['severidad_promedio']
     jal_sev_auth = jal_data['severidad_promedio']
+    nl_2023_auth = nl_data['yearly_severidad']['2023']
+    jal_2023_auth = jal_data['yearly_severidad']['2023']
+    nl_2024_auth = nl_data['yearly_severidad']['2024']
     jal_2024_auth = jal_data['yearly_severidad']['2024']
     jal_2024_cat = jal_data['yearly_categoria']['2024']
     jal_2024_cat_display = "Crítica" if jal_2024_cat in ["Critica", "Crítica"] else jal_2024_cat
+    ref_2023_auth = sum(s['yearly_severidad']['2023'] for s in data_json['estados']) / len(data_json['estados'])
+    ref_2024_auth = sum(s['yearly_severidad']['2024'] for s in data_json['estados']) / len(data_json['estados'])
 
     oax_sev_auth = oax_data['severidad_promedio']
     diff_nl_jal_auth = abs(nl_sev_auth - jal_sev_auth)
@@ -188,6 +193,32 @@ def run_comprehensive_validation():
                 "Dataset Actuarial de Severidad"
             ],
             "forbidden_texts": ["lluvia", "temperatura", "grados", "soleado"]
+        },
+        {
+            "id": "VAL-EXEC-01",
+            "dimension": "Resumen Ejecutivo Multistate (2023)",
+            "query": "Crea un resumen ejecutivo de Nuevo León y Jalisco para el año 2023",
+            "description": "Resumen ejecutivo 2023 con referencia nacional, rankings, brecha y evolución 2020->2023",
+            "required_texts": [
+                f"{ref_2023_auth:,.2f} MXN (n = 32)",
+                f"{nl_2023_auth:,.2f} MXN",
+                f"{jal_2023_auth:,.2f} MXN",
+                "35 % de exposición × 30 % de frecuencia"
+            ],
+            "forbidden_texts": []
+        },
+        {
+            "id": "VAL-EXEC-02",
+            "dimension": "Resumen Ejecutivo Año Omitido (Default 2024)",
+            "query": "Resumen ejecutivo de Nuevo León y Jalisco",
+            "description": "Usa 2024 como año predeterminado con aviso explícito y cifras dinámicas de 2024",
+            "required_texts": [
+                "No indicaste año; uso 2024, último año disponible.",
+                f"{ref_2024_auth:,.2f} MXN (n = 32)",
+                f"{nl_2024_auth:,.2f} MXN",
+                f"{jal_2024_auth:,.2f} MXN"
+            ],
+            "forbidden_texts": []
         }
     ]
     

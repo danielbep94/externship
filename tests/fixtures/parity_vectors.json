@@ -1,0 +1,3262 @@
+{
+  "real_cases": [
+    {
+      "id": "T1",
+      "query": "Crea un resumen ejecutivo de Nuevo León y Jalisco para el año 2023",
+      "ir": {
+        "intent": "executive_multistate_summary",
+        "states": [
+          "Nuevo Leon",
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Nuevo León",
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2023,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national",
+          "selection"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Crea un resumen ejecutivo de Nuevo León y Jalisco para el año 2023"
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 7805.919112897074,
+          "value_fmt": "7,805.92",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Nuevo Leon",
+            "severidad": 16477.148443227212,
+            "severidad_fmt": "16,477.15",
+            "indice": 211.08530853212892,
+            "indice_fmt": "211.1",
+            "indice_2020": 211.76202903514815,
+            "indice_2020_fmt": "211.8",
+            "categoria": "Crítica",
+            "costo_mdp": 10007.666497,
+            "costo_mdp_fmt": "10,007.67",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 4,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 72.48049522658997,
+            "var_severidad_fmt": "+72.5 %",
+            "var_mdp_pct": 72.48049522658997,
+            "var_mdp_fmt": "+72.5 %",
+            "delta_indice_pts": -0.6767205030192258,
+            "delta_indice_fmt": "-0.7 pts",
+            "automoviles_registrados": 2580000,
+            "poblacion_2020": 5784442
+          },
+          {
+            "entidad": "Jalisco",
+            "severidad": 12131.951066598034,
+            "severidad_fmt": "12,131.95",
+            "indice": 155.4198921502199,
+            "indice_fmt": "155.4",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 10634.33274,
+            "costo_mdp_fmt": "10,634.33",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 52.98257798067114,
+            "var_severidad_fmt": "+53.0 %",
+            "var_mdp_pct": 52.98257798067114,
+            "var_mdp_fmt": "+53.0 %",
+            "delta_indice_pts": -20.370324160537592,
+            "delta_indice_fmt": "-20.4 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Nuevo Leon",
+            "Jalisco"
+          ],
+          "orden_mdp": [
+            "Jalisco",
+            "Nuevo Leon"
+          ],
+          "lider_severidad": "Nuevo Leon",
+          "menor_severidad": "Jalisco",
+          "brecha_severidad_abs": 4345.197376629178,
+          "brecha_severidad_abs_fmt": "4,345.20",
+          "brecha_severidad_pct": 35.81614657672396,
+          "brecha_severidad_pct_fmt": "35.8",
+          "lider_mdp": "Jalisco",
+          "menor_mdp": "Nuevo Leon",
+          "brecha_mdp_abs": 626.6662429999997,
+          "brecha_mdp_abs_fmt": "626.67",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T2",
+      "query": "Síntesis de CDMX, Puebla y Edomex en 2024",
+      "ir": {
+        "intent": "executive_multistate_summary",
+        "states": [
+          "Ciudad de Mexico",
+          "Puebla",
+          "Estado de Mexico"
+        ],
+        "states_raw": [
+          "CDMX",
+          "Puebla",
+          "Edomex"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national",
+          "selection"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Síntesis de CDMX, Puebla y Edomex en 2024"
+      },
+      "summary": {
+        "target_year": 2024,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9041.640570671145,
+          "value_fmt": "9,041.64",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Ciudad de Mexico",
+            "severidad": 14112.406892045425,
+            "severidad_fmt": "14,112.41",
+            "indice": 156.08237002721162,
+            "indice_fmt": "156.1",
+            "indice_2020": 162.02035702306318,
+            "indice_2020_fmt": "162.0",
+            "categoria": "Crítica",
+            "costo_mdp": 13647.320104,
+            "costo_mdp_fmt": "13,647.32",
+            "rank_nacional_severidad": 4,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 2,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 93.08010687993962,
+            "var_severidad_fmt": "+93.1 %",
+            "var_mdp_pct": 93.08010687993963,
+            "var_mdp_fmt": "+93.1 %",
+            "delta_indice_pts": -5.93798699585156,
+            "delta_indice_fmt": "-5.9 pts",
+            "automoviles_registrados": 5450000,
+            "poblacion_2020": 9209944
+          },
+          {
+            "entidad": "Puebla",
+            "severidad": 7268.418089705753,
+            "severidad_fmt": "7,268.42",
+            "indice": 80.38826618791629,
+            "indice_fmt": "80.4",
+            "indice_2020": 67.61286098950269,
+            "indice_2020_fmt": "67.6",
+            "categoria": "Baja",
+            "costo_mdp": 5024.251775,
+            "costo_mdp_fmt": "5,024.25",
+            "rank_nacional_severidad": 21,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 5,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 138.29592358921744,
+            "var_severidad_fmt": "+138.3 %",
+            "var_mdp_pct": 138.29592358921744,
+            "var_mdp_fmt": "+138.3 %",
+            "delta_indice_pts": 12.775405198413594,
+            "delta_indice_fmt": "+12.8 pts",
+            "automoviles_registrados": 1480000,
+            "poblacion_2020": 6583278
+          },
+          {
+            "entidad": "Estado de Mexico",
+            "severidad": 8105.332449420902,
+            "severidad_fmt": "8,105.33",
+            "indice": 89.64448858664659,
+            "indice_fmt": "89.6",
+            "indice_2020": 88.01361513918023,
+            "indice_2020_fmt": "88.0",
+            "categoria": "Media",
+            "costo_mdp": 14461.565686,
+            "costo_mdp_fmt": "14,461.57",
+            "rank_nacional_severidad": 16,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 104.13947732168856,
+            "var_severidad_fmt": "+104.1 %",
+            "var_mdp_pct": 104.13947732168856,
+            "var_mdp_fmt": "+104.1 %",
+            "delta_indice_pts": 1.6308734474663567,
+            "delta_indice_fmt": "+1.6 pts",
+            "automoviles_registrados": 5850000,
+            "poblacion_2020": 16992418
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Ciudad de Mexico",
+            "Estado de Mexico",
+            "Puebla"
+          ],
+          "orden_mdp": [
+            "Estado de Mexico",
+            "Ciudad de Mexico",
+            "Puebla"
+          ],
+          "lider_severidad": "Ciudad de Mexico",
+          "menor_severidad": "Puebla",
+          "brecha_severidad_abs": 6843.988802339672,
+          "brecha_severidad_abs_fmt": "6,843.99",
+          "brecha_severidad_pct": 94.1606374024191,
+          "brecha_severidad_pct_fmt": "94.2",
+          "lider_mdp": "Estado de Mexico",
+          "menor_mdp": "Puebla",
+          "brecha_mdp_abs": 9437.313911000001,
+          "brecha_mdp_abs_fmt": "9,437.31",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T3",
+      "query": "Resumen ejecutivo de Jalisco para 2024",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Resumen ejecutivo de Jalisco para 2024"
+      },
+      "summary": {
+        "target_year": 2024,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9041.640570671145,
+          "value_fmt": "9,041.64",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Jalisco",
+            "severidad": 13836.273267491895,
+            "severidad_fmt": "13,836.27",
+            "indice": 153.0283487752583,
+            "indice_fmt": "153.0",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 12128.266344,
+            "costo_mdp_fmt": "12,128.27",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 74.47389479947091,
+            "var_severidad_fmt": "+74.5 %",
+            "var_mdp_pct": 74.47389479947091,
+            "var_mdp_fmt": "+74.5 %",
+            "delta_indice_pts": -22.761867535499192,
+            "delta_indice_fmt": "-22.8 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T5a",
+      "query": "Tres hallazgos clave",
+      "ir": {
+        "intent": "three_findings",
+        "states": [],
+        "states_raw": [],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "Tres hallazgos clave"
+      },
+      "summary": null
+    },
+    {
+      "id": "T5b",
+      "query": "Resumen nacional",
+      "ir": {
+        "intent": "three_findings",
+        "states": [],
+        "states_raw": [],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [
+          "severidad"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "Resumen nacional"
+      },
+      "summary": null
+    },
+    {
+      "id": "T5c",
+      "query": "Contar el reporte en tres hallazgos",
+      "ir": {
+        "intent": "three_findings",
+        "states": [],
+        "states_raw": [],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "Contar el reporte en tres hallazgos"
+      },
+      "summary": null
+    },
+    {
+      "id": "T6",
+      "query": "Resumen ejecutivo de Nuevo León y Jalisco",
+      "ir": {
+        "intent": "executive_multistate_summary",
+        "states": [
+          "Nuevo Leon",
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Nuevo León",
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "default",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national",
+          "selection"
+        ],
+        "interpretation_notes": [
+          "No indicaste año; uso 2024, último año disponible."
+        ],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Resumen ejecutivo de Nuevo León y Jalisco"
+      },
+      "summary": {
+        "target_year": 2024,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9041.640570671145,
+          "value_fmt": "9,041.64",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Nuevo Leon",
+            "severidad": 18804.45326569838,
+            "severidad_fmt": "18,804.45",
+            "indice": 207.97612024852432,
+            "indice_fmt": "208.0",
+            "indice_2020": 211.76202903514815,
+            "indice_2020_fmt": "211.8",
+            "categoria": "Crítica",
+            "costo_mdp": 11421.193272,
+            "costo_mdp_fmt": "11,421.19",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 4,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 96.84239799794334,
+            "var_severidad_fmt": "+96.8 %",
+            "var_mdp_pct": 96.84239799794337,
+            "var_mdp_fmt": "+96.8 %",
+            "delta_indice_pts": -3.7859087866238212,
+            "delta_indice_fmt": "-3.8 pts",
+            "automoviles_registrados": 2580000,
+            "poblacion_2020": 5784442
+          },
+          {
+            "entidad": "Jalisco",
+            "severidad": 13836.273267491895,
+            "severidad_fmt": "13,836.27",
+            "indice": 153.0283487752583,
+            "indice_fmt": "153.0",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 12128.266344,
+            "costo_mdp_fmt": "12,128.27",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 74.47389479947091,
+            "var_severidad_fmt": "+74.5 %",
+            "var_mdp_pct": 74.47389479947091,
+            "var_mdp_fmt": "+74.5 %",
+            "delta_indice_pts": -22.761867535499192,
+            "delta_indice_fmt": "-22.8 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Nuevo Leon",
+            "Jalisco"
+          ],
+          "orden_mdp": [
+            "Jalisco",
+            "Nuevo Leon"
+          ],
+          "lider_severidad": "Nuevo Leon",
+          "menor_severidad": "Jalisco",
+          "brecha_severidad_abs": 4968.179998206484,
+          "brecha_severidad_abs_fmt": "4,968.18",
+          "brecha_severidad_pct": 35.90692307211902,
+          "brecha_severidad_pct_fmt": "35.9",
+          "lider_mdp": "Jalisco",
+          "menor_mdp": "Nuevo Leon",
+          "brecha_mdp_abs": 707.0730719999992,
+          "brecha_mdp_abs_fmt": "707.07",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T9",
+      "query": "Resumen de CDMX y Ciudad de México 2023",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Ciudad de Mexico"
+        ],
+        "states_raw": [
+          "CDMX",
+          "Ciudad de México"
+        ],
+        "duplicate_mentions": [
+          "CDMX",
+          "Ciudad de México"
+        ],
+        "target_year": 2023,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [
+          "CDMX y Ciudad de México corresponden a la misma entidad (Ciudad de Mexico)."
+        ],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Resumen de CDMX y Ciudad de México 2023"
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 7805.919112897074,
+          "value_fmt": "7,805.92",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Ciudad de Mexico",
+            "severidad": 12380.371557401126,
+            "severidad_fmt": "12,380.37",
+            "indice": 158.6023551915374,
+            "indice_fmt": "158.6",
+            "indice_2020": 162.02035702306318,
+            "indice_2020_fmt": "162.0",
+            "categoria": "Crítica",
+            "costo_mdp": 11972.365518,
+            "costo_mdp_fmt": "11,972.37",
+            "rank_nacional_severidad": 4,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 69.38311670022388,
+            "var_severidad_fmt": "+69.4 %",
+            "var_mdp_pct": 69.3831167002239,
+            "var_mdp_fmt": "+69.4 %",
+            "delta_indice_pts": -3.418001831525771,
+            "delta_indice_fmt": "-3.4 pts",
+            "automoviles_registrados": 5450000,
+            "poblacion_2020": 9209944
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T10",
+      "query": "Resumen de NL, Nuevo León y Jalisco 2023",
+      "ir": {
+        "intent": "executive_multistate_summary",
+        "states": [
+          "Nuevo Leon",
+          "Jalisco"
+        ],
+        "states_raw": [
+          "NL",
+          "Nuevo León",
+          "Jalisco"
+        ],
+        "duplicate_mentions": [
+          "NL",
+          "Nuevo León"
+        ],
+        "target_year": 2023,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national",
+          "selection"
+        ],
+        "interpretation_notes": [
+          "NL y Nuevo León corresponden a la misma entidad (Nuevo Leon)."
+        ],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Resumen de NL, Nuevo León y Jalisco 2023"
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 7805.919112897074,
+          "value_fmt": "7,805.92",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Nuevo Leon",
+            "severidad": 16477.148443227212,
+            "severidad_fmt": "16,477.15",
+            "indice": 211.08530853212892,
+            "indice_fmt": "211.1",
+            "indice_2020": 211.76202903514815,
+            "indice_2020_fmt": "211.8",
+            "categoria": "Crítica",
+            "costo_mdp": 10007.666497,
+            "costo_mdp_fmt": "10,007.67",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 4,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 72.48049522658997,
+            "var_severidad_fmt": "+72.5 %",
+            "var_mdp_pct": 72.48049522658997,
+            "var_mdp_fmt": "+72.5 %",
+            "delta_indice_pts": -0.6767205030192258,
+            "delta_indice_fmt": "-0.7 pts",
+            "automoviles_registrados": 2580000,
+            "poblacion_2020": 5784442
+          },
+          {
+            "entidad": "Jalisco",
+            "severidad": 12131.951066598034,
+            "severidad_fmt": "12,131.95",
+            "indice": 155.4198921502199,
+            "indice_fmt": "155.4",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 10634.33274,
+            "costo_mdp_fmt": "10,634.33",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 52.98257798067114,
+            "var_severidad_fmt": "+53.0 %",
+            "var_mdp_pct": 52.98257798067114,
+            "var_mdp_fmt": "+53.0 %",
+            "delta_indice_pts": -20.370324160537592,
+            "delta_indice_fmt": "-20.4 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Nuevo Leon",
+            "Jalisco"
+          ],
+          "orden_mdp": [
+            "Jalisco",
+            "Nuevo Leon"
+          ],
+          "lider_severidad": "Nuevo Leon",
+          "menor_severidad": "Jalisco",
+          "brecha_severidad_abs": 4345.197376629178,
+          "brecha_severidad_abs_fmt": "4,345.20",
+          "brecha_severidad_pct": 35.81614657672396,
+          "brecha_severidad_pct_fmt": "35.8",
+          "lider_mdp": "Jalisco",
+          "menor_mdp": "Nuevo Leon",
+          "brecha_mdp_abs": 626.6662429999997,
+          "brecha_mdp_abs_fmt": "626.67",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T11",
+      "query": "Compara CDMX y Ciudad de México",
+      "ir": {
+        "intent": "multi_state_comparison",
+        "states": [
+          "Ciudad de Mexico"
+        ],
+        "states_raw": [
+          "CDMX",
+          "Ciudad de México"
+        ],
+        "duplicate_mentions": [
+          "CDMX",
+          "Ciudad de México"
+        ],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [
+          "severidad"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [
+          "Ambas menciones (CDMX y Ciudad de México) corresponden a Ciudad de Mexico; indica otra entidad para comparar."
+        ],
+        "insufficient_entities": true,
+        "confidence": 0.95,
+        "query_text": "Compara CDMX y Ciudad de México"
+      },
+      "summary": null
+    },
+    {
+      "id": "T12",
+      "query": "Resumen nacional de Jalisco 2024",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [
+          "Interpreté la consulta como resumen de Jalisco comparado con la media de las entidades con dato."
+        ],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Resumen nacional de Jalisco 2024"
+      },
+      "summary": {
+        "target_year": 2024,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9041.640570671145,
+          "value_fmt": "9,041.64",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Jalisco",
+            "severidad": 13836.273267491895,
+            "severidad_fmt": "13,836.27",
+            "indice": 153.0283487752583,
+            "indice_fmt": "153.0",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 12128.266344,
+            "costo_mdp_fmt": "12,128.27",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 74.47389479947091,
+            "var_severidad_fmt": "+74.5 %",
+            "var_mdp_pct": 74.47389479947091,
+            "var_mdp_fmt": "+74.5 %",
+            "delta_indice_pts": -22.761867535499192,
+            "delta_indice_fmt": "-22.8 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T13a",
+      "query": "Ejecutivo de Jalisco 2024",
+      "ir": {
+        "intent": "single_state",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "explicit",
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "Ejecutivo de Jalisco 2024"
+      },
+      "summary": null
+    },
+    {
+      "id": "T13b",
+      "query": "Ver Jalisco en el reporte",
+      "ir": {
+        "intent": "single_state",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "Ver Jalisco en el reporte"
+      },
+      "summary": null
+    },
+    {
+      "id": "T13c",
+      "query": "¿Qué presumen en Jalisco?",
+      "ir": {
+        "intent": "single_state",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "¿Qué presumen en Jalisco?"
+      },
+      "summary": null
+    },
+    {
+      "id": "T14a",
+      "query": "Genera un reporte de Jalisco 2024",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Genera un reporte de Jalisco 2024"
+      },
+      "summary": {
+        "target_year": 2024,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9041.640570671145,
+          "value_fmt": "9,041.64",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Jalisco",
+            "severidad": 13836.273267491895,
+            "severidad_fmt": "13,836.27",
+            "indice": 153.0283487752583,
+            "indice_fmt": "153.0",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 12128.266344,
+            "costo_mdp_fmt": "12,128.27",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 74.47389479947091,
+            "var_severidad_fmt": "+74.5 %",
+            "var_mdp_pct": 74.47389479947091,
+            "var_mdp_fmt": "+74.5 %",
+            "delta_indice_pts": -22.761867535499192,
+            "delta_indice_fmt": "-22.8 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T14b",
+      "query": "Dame un informe de NL y Jalisco 2023",
+      "ir": {
+        "intent": "executive_multistate_summary",
+        "states": [
+          "Nuevo Leon",
+          "Jalisco"
+        ],
+        "states_raw": [
+          "NL",
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2023,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national",
+          "selection"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Dame un informe de NL y Jalisco 2023"
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 7805.919112897074,
+          "value_fmt": "7,805.92",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Nuevo Leon",
+            "severidad": 16477.148443227212,
+            "severidad_fmt": "16,477.15",
+            "indice": 211.08530853212892,
+            "indice_fmt": "211.1",
+            "indice_2020": 211.76202903514815,
+            "indice_2020_fmt": "211.8",
+            "categoria": "Crítica",
+            "costo_mdp": 10007.666497,
+            "costo_mdp_fmt": "10,007.67",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 4,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 72.48049522658997,
+            "var_severidad_fmt": "+72.5 %",
+            "var_mdp_pct": 72.48049522658997,
+            "var_mdp_fmt": "+72.5 %",
+            "delta_indice_pts": -0.6767205030192258,
+            "delta_indice_fmt": "-0.7 pts",
+            "automoviles_registrados": 2580000,
+            "poblacion_2020": 5784442
+          },
+          {
+            "entidad": "Jalisco",
+            "severidad": 12131.951066598034,
+            "severidad_fmt": "12,131.95",
+            "indice": 155.4198921502199,
+            "indice_fmt": "155.4",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Crítica",
+            "costo_mdp": 10634.33274,
+            "costo_mdp_fmt": "10,634.33",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 52.98257798067114,
+            "var_severidad_fmt": "+53.0 %",
+            "var_mdp_pct": 52.98257798067114,
+            "var_mdp_fmt": "+53.0 %",
+            "delta_indice_pts": -20.370324160537592,
+            "delta_indice_fmt": "-20.4 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Nuevo Leon",
+            "Jalisco"
+          ],
+          "orden_mdp": [
+            "Jalisco",
+            "Nuevo Leon"
+          ],
+          "lider_severidad": "Nuevo Leon",
+          "menor_severidad": "Jalisco",
+          "brecha_severidad_abs": 4345.197376629178,
+          "brecha_severidad_abs_fmt": "4,345.20",
+          "brecha_severidad_pct": 35.81614657672396,
+          "brecha_severidad_pct_fmt": "35.8",
+          "lider_mdp": "Jalisco",
+          "menor_mdp": "Nuevo Leon",
+          "brecha_mdp_abs": 626.6662429999997,
+          "brecha_mdp_abs_fmt": "626.67",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T15",
+      "query": "Resumen de Jalisco 2020 y 2024",
+      "ir": {
+        "intent": "clarification_year",
+        "error_message": "⚠️ Indica un solo año para el resumen (2020–2024). Detecté múltiples años: 2020, 2024.",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 1.0,
+        "query_text": "Resumen de Jalisco 2020 y 2024"
+      },
+      "summary": null
+    },
+    {
+      "id": "T16",
+      "query": "Resumen ejecutivo de Jalisco para 2020",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Jalisco"
+        ],
+        "states_raw": [
+          "Jalisco"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2020,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "Resumen ejecutivo de Jalisco para 2020"
+      },
+      "summary": {
+        "target_year": 2020,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 4511.2196600713505,
+          "value_fmt": "4,511.22",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Jalisco",
+            "severidad": 7930.282798692847,
+            "severidad_fmt": "7,930.28",
+            "indice": 175.7902163107575,
+            "indice_fmt": "175.8",
+            "indice_2020": 175.7902163107575,
+            "indice_2020_fmt": "175.8",
+            "categoria": "Media",
+            "costo_mdp": 6951.335819,
+            "costo_mdp_fmt": "6,951.34",
+            "rank_nacional_severidad": 3,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 0.0,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": 0.0,
+            "var_mdp_fmt": "0.0 %",
+            "delta_indice_pts": 0.0,
+            "delta_indice_fmt": "0.0 pts",
+            "automoviles_registrados": 3420000,
+            "poblacion_2020": 8348151
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    }
+  ],
+  "synthetic_cases": [
+    {
+      "id": "T17",
+      "states": [
+        "Estado A",
+        "Estado B",
+        "Estado C"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 300.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 100.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "Estado B",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 200.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "03",
+            "entidad": "Estado C",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 300.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [],
+          "missing_observations": [],
+          "missing_count": 0,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 200.0,
+          "value_fmt": "200.00",
+          "n": 3
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": 100.0,
+            "severidad_fmt": "100.00",
+            "indice": 50.0,
+            "indice_fmt": "50.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 3,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 0.0,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": -50.0,
+            "delta_indice_fmt": "-50.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado B",
+            "severidad": 200.0,
+            "severidad_fmt": "200.00",
+            "indice": 100.0,
+            "indice_fmt": "100.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 2,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 100.0,
+            "var_severidad_fmt": "+100.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 0.0,
+            "delta_indice_fmt": "0.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado C",
+            "severidad": 300.0,
+            "severidad_fmt": "300.00",
+            "indice": 150.0,
+            "indice_fmt": "150.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 200.0,
+            "var_severidad_fmt": "+200.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 50.0,
+            "delta_indice_fmt": "+50.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Estado C",
+            "Estado B",
+            "Estado A"
+          ],
+          "orden_mdp": [
+            "Estado A",
+            "Estado B",
+            "Estado C"
+          ],
+          "lider_severidad": "Estado C",
+          "menor_severidad": "Estado A",
+          "brecha_severidad_abs": 200.0,
+          "brecha_severidad_abs_fmt": "200.00",
+          "brecha_severidad_pct": 200.0,
+          "brecha_severidad_pct_fmt": "200.0",
+          "lider_mdp": "Estado A",
+          "menor_mdp": "Estado C",
+          "brecha_mdp_abs": 0.0,
+          "brecha_mdp_abs_fmt": "0.00",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T18",
+      "states": [
+        "Estado A",
+        "Estado B",
+        "Estado C"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 300.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 100.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 10.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "Estado B",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 200.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 20.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "03",
+            "entidad": "Estado C",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": null,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 30.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": null,
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [
+            {
+              "entidad": "Estado C",
+              "anio": "2023",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado C",
+              "anio": "2023",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_observations": [
+            {
+              "entidad": "Estado C",
+              "anio": "2023",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado C",
+              "anio": "2023",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_count": 2,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 150.0,
+          "value_fmt": "150.00",
+          "n": 2
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": 100.0,
+            "severidad_fmt": "100.00",
+            "indice": 66.66666666666666,
+            "indice_fmt": "66.7",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 10.0,
+            "costo_mdp_fmt": "10.00",
+            "rank_nacional_severidad": 2,
+            "n_nacional_severidad": 2,
+            "rank_nacional_mdp": 3,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 0.0,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": -80.0,
+            "var_mdp_fmt": "-80.0 %",
+            "delta_indice_pts": -33.33333333333334,
+            "delta_indice_fmt": "-33.3 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado B",
+            "severidad": 200.0,
+            "severidad_fmt": "200.00",
+            "indice": 133.33333333333331,
+            "indice_fmt": "133.3",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 20.0,
+            "costo_mdp_fmt": "20.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 2,
+            "rank_nacional_mdp": 2,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 100.0,
+            "var_severidad_fmt": "+100.0 %",
+            "var_mdp_pct": -60.0,
+            "var_mdp_fmt": "-60.0 %",
+            "delta_indice_pts": 33.333333333333314,
+            "delta_indice_fmt": "+33.3 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado C",
+            "severidad": null,
+            "severidad_fmt": "sin dato",
+            "indice": null,
+            "indice_fmt": "no calculable",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "sin dato",
+            "costo_mdp": 30.0,
+            "costo_mdp_fmt": "30.00",
+            "rank_nacional_severidad": null,
+            "n_nacional_severidad": 2,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": null,
+            "var_severidad_fmt": "no calculable",
+            "var_mdp_pct": -40.0,
+            "var_mdp_fmt": "-40.0 %",
+            "delta_indice_pts": null,
+            "delta_indice_fmt": "no calculable",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Estado B",
+            "Estado A"
+          ],
+          "orden_mdp": [
+            "Estado C",
+            "Estado B",
+            "Estado A"
+          ],
+          "lider_severidad": "Estado B",
+          "menor_severidad": "Estado A",
+          "brecha_severidad_abs": 100.0,
+          "brecha_severidad_abs_fmt": "100.00",
+          "brecha_severidad_pct": 100.0,
+          "brecha_severidad_pct_fmt": "100.0",
+          "lider_mdp": "Estado C",
+          "menor_mdp": "Estado A",
+          "brecha_mdp_abs": 20.0,
+          "brecha_mdp_abs_fmt": "20.00",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T19",
+      "states": [
+        "Estado A",
+        "Estado B",
+        "Estado C"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 300.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 100.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 10.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "Estado B",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 200.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "03",
+            "entidad": "Estado C",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 300.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 30.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [
+            {
+              "entidad": "Estado B",
+              "anio": "2023",
+              "metrica": "costo_mdp"
+            }
+          ],
+          "missing_observations": [
+            {
+              "entidad": "Estado B",
+              "anio": "2023",
+              "metrica": "costo_mdp"
+            }
+          ],
+          "missing_count": 1,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 200.0,
+          "value_fmt": "200.00",
+          "n": 3
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": 100.0,
+            "severidad_fmt": "100.00",
+            "indice": 50.0,
+            "indice_fmt": "50.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 10.0,
+            "costo_mdp_fmt": "10.00",
+            "rank_nacional_severidad": 3,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 2,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": 0.0,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": -80.0,
+            "var_mdp_fmt": "-80.0 %",
+            "delta_indice_pts": -50.0,
+            "delta_indice_fmt": "-50.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado B",
+            "severidad": 200.0,
+            "severidad_fmt": "200.00",
+            "indice": 100.0,
+            "indice_fmt": "100.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": null,
+            "costo_mdp_fmt": "sin dato",
+            "rank_nacional_severidad": 2,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": null,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": 100.0,
+            "var_severidad_fmt": "+100.0 %",
+            "var_mdp_pct": null,
+            "var_mdp_fmt": "no calculable",
+            "delta_indice_pts": 0.0,
+            "delta_indice_fmt": "0.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado C",
+            "severidad": 300.0,
+            "severidad_fmt": "300.00",
+            "indice": 150.0,
+            "indice_fmt": "150.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 30.0,
+            "costo_mdp_fmt": "30.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": 200.0,
+            "var_severidad_fmt": "+200.0 %",
+            "var_mdp_pct": -40.0,
+            "var_mdp_fmt": "-40.0 %",
+            "delta_indice_pts": 50.0,
+            "delta_indice_fmt": "+50.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Estado C",
+            "Estado B",
+            "Estado A"
+          ],
+          "orden_mdp": [
+            "Estado C",
+            "Estado A"
+          ],
+          "lider_severidad": "Estado C",
+          "menor_severidad": "Estado A",
+          "brecha_severidad_abs": 200.0,
+          "brecha_severidad_abs_fmt": "200.00",
+          "brecha_severidad_pct": 200.0,
+          "brecha_severidad_pct_fmt": "200.0",
+          "lider_mdp": "Estado C",
+          "menor_mdp": "Estado A",
+          "brecha_mdp_abs": 20.0,
+          "brecha_mdp_abs_fmt": "20.00",
+          "lideres_difieren": false
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T20",
+      "states": [
+        "Estado A",
+        "Estado B"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 200.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 0.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 150.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": null,
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 50.0,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "Estado B",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 250.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 50.0,
+            "categoria_severidad": "Media"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [
+            {
+              "entidad": "Estado A",
+              "anio": "2020",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado A",
+              "anio": "2020",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_observations": [
+            {
+              "entidad": "Estado A",
+              "anio": "2020",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado A",
+              "anio": "2020",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_count": 2,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 200.0,
+          "value_fmt": "200.00",
+          "n": 2
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": 150.0,
+            "severidad_fmt": "150.00",
+            "indice": 75.0,
+            "indice_fmt": "75.0",
+            "indice_2020": null,
+            "indice_2020_fmt": "no calculable",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 2,
+            "n_nacional_severidad": 2,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": null,
+            "var_severidad_fmt": "no calculable",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": null,
+            "delta_indice_fmt": "no calculable",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado B",
+            "severidad": 250.0,
+            "severidad_fmt": "250.00",
+            "indice": 125.0,
+            "indice_fmt": "125.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 2,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": 150.0,
+            "var_severidad_fmt": "+150.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 25.0,
+            "delta_indice_fmt": "+25.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Estado B",
+            "Estado A"
+          ],
+          "orden_mdp": [
+            "Estado A",
+            "Estado B"
+          ],
+          "lider_severidad": "Estado B",
+          "menor_severidad": "Estado A",
+          "brecha_severidad_abs": 100.0,
+          "brecha_severidad_abs_fmt": "100.00",
+          "brecha_severidad_pct": 66.66666666666666,
+          "brecha_severidad_pct_fmt": "66.7",
+          "lider_mdp": "Estado A",
+          "menor_mdp": "Estado B",
+          "brecha_mdp_abs": 0.0,
+          "brecha_mdp_abs_fmt": "0.00",
+          "lideres_difieren": true
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T21",
+      "states": [
+        "Estado A",
+        "Estado B"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 200.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": null,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": null,
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 50.0,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "Estado B",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": null,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": null,
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 50.0,
+            "categoria_severidad": "Media"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [
+            {
+              "entidad": "Estado A",
+              "anio": "2023",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado A",
+              "anio": "2023",
+              "metrica": "categoria"
+            },
+            {
+              "entidad": "Estado B",
+              "anio": "2023",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado B",
+              "anio": "2023",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_observations": [
+            {
+              "entidad": "Estado A",
+              "anio": "2023",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado A",
+              "anio": "2023",
+              "metrica": "categoria"
+            },
+            {
+              "entidad": "Estado B",
+              "anio": "2023",
+              "metrica": "severidad"
+            },
+            {
+              "entidad": "Estado B",
+              "anio": "2023",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_count": 4,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": null,
+          "value_fmt": "no calculable",
+          "n": 0
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": null,
+            "severidad_fmt": "sin dato",
+            "indice": null,
+            "indice_fmt": "no calculable",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "sin dato",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": null,
+            "n_nacional_severidad": 0,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": null,
+            "var_severidad_fmt": "no calculable",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": null,
+            "delta_indice_fmt": "no calculable",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado B",
+            "severidad": null,
+            "severidad_fmt": "sin dato",
+            "indice": null,
+            "indice_fmt": "no calculable",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "sin dato",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": null,
+            "n_nacional_severidad": 0,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 2,
+            "var_severidad_pct": null,
+            "var_severidad_fmt": "no calculable",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": null,
+            "delta_indice_fmt": "no calculable",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [],
+          "orden_mdp": [
+            "Estado A",
+            "Estado B"
+          ],
+          "lider_severidad": null,
+          "menor_severidad": null,
+          "brecha_severidad_abs": null,
+          "brecha_severidad_abs_fmt": "no calculable",
+          "brecha_severidad_pct": null,
+          "brecha_severidad_pct_fmt": "no calculable",
+          "lider_mdp": "Estado A",
+          "menor_mdp": "Estado B",
+          "brecha_mdp_abs": 0.0,
+          "brecha_mdp_abs_fmt": "0.00",
+          "lideres_difieren": false
+        },
+        "all_severidad_missing": true,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T22",
+      "states": [
+        "E1",
+        "E2",
+        "E3",
+        "E4"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 400.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "E1",
+            "severidad_promedio": 11000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 11000.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Critica",
+              "2024": "Baja"
+            },
+            "indice_severidad": 122.22222222222223,
+            "pct_costo_nacional": 25.0,
+            "categoria_severidad": "Critica"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "E2",
+            "severidad_promedio": 10999.99,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 10999.99,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Media",
+              "2024": "Baja"
+            },
+            "indice_severidad": 122.2221111111111,
+            "pct_costo_nacional": 25.0,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "03",
+            "entidad": "E3",
+            "severidad_promedio": 7500.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 7500.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Media",
+              "2024": "Baja"
+            },
+            "indice_severidad": 83.33333333333334,
+            "pct_costo_nacional": 25.0,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "04",
+            "entidad": "E4",
+            "severidad_promedio": 7499.99,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 7499.99,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 83.33322222222222,
+            "pct_costo_nacional": 25.0,
+            "categoria_severidad": "Baja"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [],
+          "missing_observations": [],
+          "missing_count": 0,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9249.994999999999,
+          "value_fmt": "9,249.99",
+          "n": 4
+        },
+        "rows": [
+          {
+            "entidad": "E1",
+            "severidad": 11000.0,
+            "severidad_fmt": "11,000.00",
+            "indice": 118.9189831994504,
+            "indice_fmt": "118.9",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Crítica",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 4,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 4,
+            "var_severidad_pct": 10900.0,
+            "var_severidad_fmt": "+10,900.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 18.918983199450395,
+            "delta_indice_fmt": "+18.9 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "E2",
+            "severidad": 10999.99,
+            "severidad_fmt": "10,999.99",
+            "indice": 118.91887509128385,
+            "indice_fmt": "118.9",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Media",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 2,
+            "n_nacional_severidad": 4,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 4,
+            "var_severidad_pct": 10899.99,
+            "var_severidad_fmt": "+10,900.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 18.91887509128385,
+            "delta_indice_fmt": "+18.9 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "E3",
+            "severidad": 7500.0,
+            "severidad_fmt": "7,500.00",
+            "indice": 81.08112490871618,
+            "indice_fmt": "81.1",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Media",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 3,
+            "n_nacional_severidad": 4,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 4,
+            "var_severidad_pct": 7400.0,
+            "var_severidad_fmt": "+7,400.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": -18.918875091283823,
+            "delta_indice_fmt": "-18.9 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "E4",
+            "severidad": 7499.99,
+            "severidad_fmt": "7,499.99",
+            "indice": 81.08101680054963,
+            "indice_fmt": "81.1",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 4,
+            "n_nacional_severidad": 4,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 4,
+            "var_severidad_pct": 7399.99,
+            "var_severidad_fmt": "+7,400.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": -18.918983199450366,
+            "delta_indice_fmt": "-18.9 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "E1",
+            "E2",
+            "E3",
+            "E4"
+          ],
+          "orden_mdp": [
+            "E1",
+            "E2",
+            "E3",
+            "E4"
+          ],
+          "lider_severidad": "E1",
+          "menor_severidad": "E4",
+          "brecha_severidad_abs": 3500.01,
+          "brecha_severidad_abs_fmt": "3,500.01",
+          "brecha_severidad_pct": 46.66686222248297,
+          "brecha_severidad_pct_fmt": "46.7",
+          "lider_mdp": "E1",
+          "menor_mdp": "E4",
+          "brecha_mdp_abs": 0.0,
+          "brecha_mdp_abs_fmt": "0.00",
+          "lideres_difieren": false
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T23",
+      "states": [
+        "Estado A"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 100.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 12000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 12000.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 133.33333333333331,
+            "pct_costo_nacional": 100.0,
+            "categoria_severidad": "Critica"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [
+            {
+              "entidad": "Estado A",
+              "anio": "2023",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_observations": [
+            {
+              "entidad": "Estado A",
+              "anio": "2023",
+              "metrica": "categoria"
+            }
+          ],
+          "missing_count": 1,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 12000.0,
+          "value_fmt": "12,000.00",
+          "n": 1
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": 12000.0,
+            "severidad_fmt": "12,000.00",
+            "indice": 100.0,
+            "indice_fmt": "100.0",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "sin dato",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 1,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 1,
+            "var_severidad_pct": 11900.0,
+            "var_severidad_fmt": "+11,900.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 0.0,
+            "delta_indice_fmt": "0.0 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T24",
+      "states": [
+        "Estado A",
+        "Estado B",
+        "Estado C"
+      ],
+      "target_year": 2023,
+      "dataset": {
+        "metadata": {
+          "titulo": "Dataset Sintético de Prueba",
+          "periodo": "2020-2024",
+          "promedio_nacional_severidad": 9000.0,
+          "total_mdp_nacional_promedio": 300.0,
+          "fechas_corte": {
+            "chubb": "2024"
+          }
+        },
+        "estados": [
+          {
+            "cve_ent": "01",
+            "entidad": "Estado A",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 100.004,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "02",
+            "entidad": "Estado B",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 100.001,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          },
+          {
+            "cve_ent": "03",
+            "entidad": "Estado C",
+            "severidad_promedio": 9000.0,
+            "siniestros_ocurridos_mdp_promedio": 100.0,
+            "poblacion_2020": 1000000,
+            "automoviles_registrados": 300000,
+            "area_km2": 10000.0,
+            "precio_promedio_auto_ml_k_mxn": 250.0,
+            "precio_gasolina_reg_prom": 22.0,
+            "autos_por_1000_hab": 300.0,
+            "densidad_poblacional": 100.0,
+            "cagr_2020_2024_pct": 50.0,
+            "yearly_severidad": {
+              "2020": 100.0,
+              "2021": 120.0,
+              "2022": 150.0,
+              "2023": 90.0,
+              "2024": 250.0
+            },
+            "yearly_mdp": {
+              "2020": 50.0,
+              "2021": 60.0,
+              "2022": 70.0,
+              "2023": 80.0,
+              "2024": 100.0
+            },
+            "yearly_categoria": {
+              "2020": "Baja",
+              "2021": "Baja",
+              "2022": "Baja",
+              "2023": "Baja",
+              "2024": "Baja"
+            },
+            "indice_severidad": 100.0,
+            "pct_costo_nacional": 33.333333333333336,
+            "categoria_severidad": "Media"
+          }
+        ],
+        "scatter_stats": {
+          "r_pearson": 0.8488,
+          "r2_score": 0.7205,
+          "p_value": 0.0001,
+          "slope": 50.0,
+          "intercept": -1000.0,
+          "formula": "y = 50x - 1000"
+        },
+        "data_quality": {
+          "missing": [],
+          "missing_observations": [],
+          "missing_count": 0,
+          "excluded_mdp_count": 0,
+          "excluded_pct_count": 0
+        }
+      },
+      "summary": {
+        "target_year": 2023,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 96.66833333333334,
+          "value_fmt": "96.67",
+          "n": 3
+        },
+        "rows": [
+          {
+            "entidad": "Estado A",
+            "severidad": 100.004,
+            "severidad_fmt": "100.00",
+            "indice": 103.45063016154894,
+            "indice_fmt": "103.5",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 0.004000000000004,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 3.4506301615489434,
+            "delta_indice_fmt": "+3.5 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado B",
+            "severidad": 100.001,
+            "severidad_fmt": "100.00",
+            "indice": 103.44752676677989,
+            "indice_fmt": "103.4",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 1,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": 0.0010000000000065512,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": 3.4475267667798875,
+            "delta_indice_fmt": "+3.4 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          },
+          {
+            "entidad": "Estado C",
+            "severidad": 90.0,
+            "severidad_fmt": "90.00",
+            "indice": 93.10184307167117,
+            "indice_fmt": "93.1",
+            "indice_2020": 100.0,
+            "indice_2020_fmt": "100.0",
+            "categoria": "Baja",
+            "costo_mdp": 80.0,
+            "costo_mdp_fmt": "80.00",
+            "rank_nacional_severidad": 3,
+            "n_nacional_severidad": 3,
+            "rank_nacional_mdp": 1,
+            "n_nacional_mdp": 3,
+            "var_severidad_pct": -9.999999999999998,
+            "var_severidad_fmt": "-10.0 %",
+            "var_mdp_pct": 60.00000000000001,
+            "var_mdp_fmt": "+60.0 %",
+            "delta_indice_pts": -6.898156928328831,
+            "delta_indice_fmt": "-6.9 pts",
+            "automoviles_registrados": 300000,
+            "poblacion_2020": 1000000
+          }
+        ],
+        "selection_summary": {
+          "orden_severidad": [
+            "Estado A",
+            "Estado B",
+            "Estado C"
+          ],
+          "orden_mdp": [
+            "Estado A",
+            "Estado B",
+            "Estado C"
+          ],
+          "lider_severidad": "Estado A",
+          "menor_severidad": "Estado C",
+          "brecha_severidad_abs": 10.004000000000005,
+          "brecha_severidad_abs_fmt": "10.00",
+          "brecha_severidad_pct": 11.115555555555561,
+          "brecha_severidad_pct_fmt": "11.1",
+          "lider_mdp": "Estado A",
+          "menor_mdp": "Estado C",
+          "brecha_mdp_abs": 0.0,
+          "brecha_mdp_abs_fmt": "0.00",
+          "lideres_difieren": false
+        },
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    }
+  ],
+  "formatter_cases": [
+    {
+      "val": 0.125,
+      "decimals": 2,
+      "expected": "0.13"
+    },
+    {
+      "val": 1.005,
+      "decimals": 2,
+      "expected": "1.01"
+    },
+    {
+      "val": 2.675,
+      "decimals": 2,
+      "expected": "2.68"
+    },
+    {
+      "val": 9.995,
+      "decimals": 2,
+      "expected": "10.00"
+    },
+    {
+      "val": -0.125,
+      "decimals": 2,
+      "expected": "-0.13"
+    },
+    {
+      "val": -0.004,
+      "decimals": 2,
+      "expected": "0.00"
+    },
+    {
+      "val": 1234567.895,
+      "decimals": 2,
+      "expected": "1,234,567.90"
+    },
+    {
+      "val": 1e-07,
+      "decimals": 2,
+      "expected": "0.00"
+    },
+    {
+      "val": 1e+16,
+      "decimals": 2,
+      "expected": "10,000,000,000,000,000.00"
+    },
+    {
+      "val": 0.05,
+      "decimals": 1,
+      "expected": "0.1"
+    },
+    {
+      "val": 0.25,
+      "decimals": 1,
+      "expected": "0.3"
+    },
+    {
+      "val": -0.05,
+      "decimals": 1,
+      "expected": "-0.1"
+    }
+  ]
+}
