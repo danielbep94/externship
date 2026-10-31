@@ -14,6 +14,7 @@ import re
 import difflib
 import unicodedata
 from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Dict, List, Any, Optional, Tuple
 
 class DataIntegrityError(Exception):
@@ -502,6 +503,13 @@ class ConversationMemoryManager:
         self.confirmed_metric: str = 'severidad'
         self.pending_interpretation: Optional[Dict[str, Any]] = None
 
+    def clear(self) -> None:
+        """Reinicia el estado de la memoria conversacional para consultas independientes."""
+        self.confirmed_states = []
+        self.confirmed_year = None
+        self.confirmed_metric = 'severidad'
+        self.pending_interpretation = None
+
     @staticmethod
     def is_continuation_query(query: str) -> bool:
         """
@@ -544,6 +552,12 @@ class ConversationMemoryManager:
                 "year_source": None,
                 "error_message": f"⚠️ El año {bad_y} está fuera del periodo disponible (2020–2024). Indica un año dentro de ese rango."
             }
+
+        # Si se menciona un año válido Y junto con "desde 2020" / "frente a 2020" / "contra 2020" / "vs 2020" (año base de evolución),
+        # no es un conflicto multi-año sino el año objetivo Y comparado contra la base 2020.
+        if len(unique_years) == 2 and 2020 in unique_years:
+            if re.search(r'\b(?:desde|contra|frente a|vs|respecto a)\s+2020\b', norm_q):
+                unique_years = [y for y in unique_years if y != 2020]
 
         if len(unique_years) > 1:
             yrs_str = ", ".join(str(y) for y in unique_years)
@@ -596,6 +610,10 @@ class ConversationMemoryManager:
             if has_explicit_new_state and not self.is_continuation_query(query) and not any(re.search(rf'\b{w}\b', norm_q) for w in ["este", "ese", "mismo"]):
                 return (None, None)
             return (self.confirmed_year, None)
+
+        # Si la consulta menciona el rango completo "2020 2024" junto con promedio/periodo/historico/cagr/crecimiento/tendencia, representa el periodo completo (None)
+        if unique_years == [2020, 2024] and any(re.search(rf'\b{w}\b', norm_q) for w in ["promedio", "periodo", "historico", "cagr", "crecimiento", "tendencia", "acumulado"]):
+            return (None, None)
 
         for year in unique_years:
             if year not in self.VALID_YEARS:

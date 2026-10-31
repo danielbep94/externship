@@ -42,8 +42,12 @@ def build_vectors():
         {"id": "T13c", "query": "¿Qué presumen en Jalisco?"},
         {"id": "T14a", "query": "Genera un reporte de Jalisco 2024"},
         {"id": "T14b", "query": "Dame un informe de NL y Jalisco 2023"},
+        {"id": "T14c", "query": "resume ejectivo de ciudad de mexico para 2020"},
+        {"id": "T14d", "query": "crea una explicación de los datos de Ciudad de México severidad para el año 2024"},
         {"id": "T15", "query": "Resumen de Jalisco 2020 y 2024"},
-        {"id": "T16", "query": "Resumen ejecutivo de Jalisco para 2020"}
+        {"id": "T16", "query": "Resumen ejecutivo de Jalisco para 2020"},
+        {"id": "T27a", "query": "como se calcula indice relativo"},
+        {"id": "T27b", "query": "mostrar todas las reglas de negocio"}
     ]
 
     real_cases = []
@@ -142,3 +146,4 @@ def build_vectors():
 
 if __name__ == '__main__':
     build_vectors()
+

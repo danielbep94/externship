@@ -36,7 +36,7 @@
         'sintetizar',
         'panorama'
       ],
-      weak_summary: ['reporte', 'informe'],
+      weak_summary: ['reporte', 'informe', 'explicacion', 'diagnostico'],
       creation_verbs: [
         'crea',
         'crear',
@@ -62,7 +62,43 @@
         'diferencia',
         'difieren',
         'contra'
-      ]
+      ],
+      unsupported_kpis: {
+        ventas_y_primas: [
+          'ventas', 'venta', 'prima emitida', 'primas emitidas', 'prima devengada',
+          'primas devengadas', 'prima suscrita', 'primas suscritas', 'prima cobrada',
+          'primas cobradas', 'primas', 'prima', 'facturacion', 'ingresos comerciales',
+          'ingresos por prima', 'colocacion', 'meta comercial', 'comisiones',
+          'cuota de mercado', 'market share'
+        ],
+        rentabilidad_y_finanzas: [
+          'rentabilidad', 'utilidad', 'utilidades', 'ganancia', 'ganancias', 'margen',
+          'roe', 'roi', 'roa', 'ebitda', 'loss ratio', 'combined ratio',
+          'indice combinado', 'siniestralidad sobre prima', 'resultado tecnico',
+          'reserva matematica', 'reservas ibnr', 'ibnr', 'solvencia'
+        ],
+        microdatos_poliza_y_exposicion: [
+          'polizas vigentes', 'polizas activas', 'polizas emitidas', 'polizas vendidas',
+          'numero de polizas', 'cantidad de polizas', 'total de polizas', 'asegurados directos',
+          'vehiculos asegurados', 'autos asegurados', 'parque asegurado',
+          'frecuencia observada', 'siniestros observados', 'deducible', 'coaseguro', 'suma asegurada'
+        ]
+      },
+      unsupported_granularity: {
+        sub_state: [
+          'municipio', 'municipios', 'alcaldia', 'alcaldias', 'codigo postal', 'colonia',
+          'monterrey', 'guadalajara', 'zapopan', 'cancun', 'tijuana', 'mexicali', 'merida',
+          'acapulco', 'toluca', 'ecatepec', 'naucalpan', 'san pedro garza', 'apodaca',
+          'tlalnepantla', 'nezahualcoyotl', 'hermosillo', 'culiacan', 'mazatlan', 'saltillo',
+          'torreon', 'reynosa', 'los cabos', 'puerto vallarta', 'ciudad juarez'
+        ],
+        sub_annual: [
+          'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+          'septiembre', 'octubre', 'noviembre', 'diciembre', 'mensual', 'mensuales',
+          'trimestre', 'trimestral', 'trimestrales', 'bimestre', 'bimestral', 'semestre',
+          'semestral', 'semanal', 'diario', 'q1', 'q2', 'q3', 'q4', '1t', '2t', '3t', '4t'
+        ]
+      }
     },
     state_aliases: {
       'cdmx': 'Ciudad de Mexico',
@@ -476,6 +512,24 @@
     return false;
   }
 
+  function isBusinessRulesOrGlossary(normQ) {
+    const phrases = [
+      'glosario', 'definicion', 'que es mdp', 'volumen de costo total mdp',
+      'explicar volumen de costo', 'explicar mdp', 'significa mdp', 'que significa',
+      'como se calcula', 'como calculan', 'como se obtiene', 'como se clasifica',
+      'como se define', 'cual es la formula', 'cual es la regla', 'regla de negocio',
+      'reglas de negocio', 'business rule', 'business rules', 'umbrales de', 'umbral de'
+    ];
+    if (phrases.some(p => normQ.includes(p))) return true;
+    const words = new Set(normQ.match(/\b\w+\b/g) || []);
+    const hasStrongSummary = ACTUARIAL_RULES.triggers.strong_summary.some(w => words.has(w));
+    if (!hasStrongSummary && (words.has('glosario') || words.has('reglas') || words.has('umbrales'))) {
+      return true;
+    }
+    if (words.has('formula') || words.has('formulas')) return true;
+    return false;
+  }
+
   function parseQueryIR(userQuery, canonicalStates = null, memory = null) {
     const mem = memory || new MemoryManager();
     const normQ = normalizeText(userQuery);
@@ -505,6 +559,68 @@
     const statesRaw = det.states_raw;
     const duplicateMentions = det.duplicate_mentions;
     const mentionsByState = det.mentions_by_state;
+
+    // Prioridad 1.5: KPIs inexistentes (ventas, primas, rentabilidad, pólizas vigentes)
+    const foundKpis = [];
+    for (const [catName, terms] of Object.entries(ACTUARIAL_RULES.triggers.unsupported_kpis)) {
+      const sortedTerms = [...terms].sort((a, b) => b.length - a.length);
+      for (const term of sortedTerms) {
+        if (new RegExp(`\\b${escapeRegExp(term)}\\b`).test(normQ)) {
+          foundKpis.push({ term, category: catName });
+        }
+      }
+    }
+    if (foundKpis.length > 0) {
+      const yrM = normQ.match(/\b(202[0-4])\b/g) || [];
+      const yrVal = yrM.length === 1 ? parseInt(yrM[0], 10) : null;
+      return {
+        intent: 'insufficient_data_kpi',
+        missing_kpis: foundKpis.map(k => k.term),
+        kpi_categories: Array.from(new Set(foundKpis.map(k => k.category))),
+        states: extractedStates,
+        states_raw: statesRaw,
+        duplicate_mentions: duplicateMentions,
+        target_year: yrVal,
+        year_source: yrVal !== null ? 'explicit' : null,
+        metrics: [],
+        national_reference: { method: 'simple_mean_entities_with_data' },
+        ranking_scope: [],
+        interpretation_notes: [],
+        insufficient_entities: false,
+        query_text: userQuery
+      };
+    }
+
+    // Prioridad 1.6: Granularidad sub-estatal o sub-anual no soportada
+    const foundGran = [];
+    for (const [gType, terms] of Object.entries(ACTUARIAL_RULES.triggers.unsupported_granularity)) {
+      const sortedTerms = [...terms].sort((a, b) => b.length - a.length);
+      for (const term of sortedTerms) {
+        if (new RegExp(`\\b${escapeRegExp(term)}\\b`).test(normQ)) {
+          foundGran.push({ term, granularity_type: gType });
+        }
+      }
+    }
+    if (foundGran.length > 0) {
+      const yrM = normQ.match(/\b(202[0-4])\b/g) || [];
+      const yrVal = yrM.length === 1 ? parseInt(yrM[0], 10) : null;
+      return {
+        intent: 'unsupported_granularity',
+        unsupported_terms: foundGran.map(g => g.term),
+        granularity_types: Array.from(new Set(foundGran.map(g => g.granularity_type))),
+        states: extractedStates,
+        states_raw: statesRaw,
+        duplicate_mentions: duplicateMentions,
+        target_year: yrVal,
+        year_source: yrVal !== null ? 'explicit' : null,
+        metrics: [],
+        national_reference: { method: 'simple_mean_entities_with_data' },
+        ranking_scope: [],
+        interpretation_notes: [],
+        insufficient_entities: false,
+        query_text: userQuery
+      };
+    }
 
     const effectiveStates = mem.getEffectiveStates(extractedStates, userQuery);
     const isSummary = isSummaryFamily(normQ, effectiveStates.length > 0);
@@ -620,6 +736,8 @@
     let intent = 'single_state';
     if (isSummary && effectiveStates.length === 0) {
       intent = 'three_findings';
+    } else if (isBusinessRulesOrGlossary(normQ)) {
+      intent = 'glossary_units';
     } else if (isComparison || effectiveStates.length >= 2) {
       intent = 'multi_state_comparison';
     } else if (effectiveStates.length === 1) {
@@ -845,6 +963,60 @@
     };
   }
 
+  function buildHumanNarrativeHtml(summary) {
+    const yr = summary.target_year;
+    const rows = summary.rows;
+    const ref = summary.national_reference;
+    const sel = summary.selection_summary;
+
+    if (summary.all_severidad_missing) return '';
+
+    if (rows.length === 1) {
+      const r = rows[0];
+      if (r.severidad === null) return '';
+      let diffClause = '';
+      if (r.indice !== null) {
+        const diffVs100 = r.indice - 100.0;
+        const pctStr = formatNumber(Math.abs(diffVs100), 1);
+        const dirStr = diffVs100 >= 0 ? 'por encima' : 'por debajo';
+        diffClause = `, situándose un <strong>${pctStr} % ${dirStr}</strong> de la media de las entidades con dato (<strong>$${ref.value_fmt} MXN</strong>, n = ${ref.n})`;
+      }
+      let mdpClause = '';
+      if (r.costo_mdp !== null) {
+        const rkM = r.rank_nacional_mdp !== null ? ` (<strong>${r.rank_nacional_mdp}.º lugar de ${r.n_nacional_mdp}</strong>)` : '';
+        mdpClause = ` En cuanto al volumen financiero total, acumuló <strong>$${r.costo_mdp_fmt} MDP</strong>${rkM}.`;
+      }
+      let evolClause = '';
+      if (r.var_severidad_pct !== null && r.delta_indice_pts !== null) {
+        if (Number(yr) === 2020) {
+          evolClause = ` Al tratarse del año base <strong>2020</strong>, la variación acumulada desde el inicio de la serie es de <strong>0.0 %</strong> (<strong>0.0 pts</strong> en índice).`;
+        } else {
+          evolClause = ` En perspectiva histórica frente a 2020, tanto su severidad unitaria como su costo total presentaron una variación de <strong>${r.var_severidad_fmt}</strong>, mientras que su índice relativo cambió en <strong>${r.delta_indice_fmt}</strong> (pasando de <strong>${r.indice_2020_fmt}</strong> a <strong>${r.indice_fmt} pts</strong>).`;
+        }
+      }
+      const rkS = r.rank_nacional_severidad !== null ? ` (<strong>${r.rank_nacional_severidad}.º lugar nacional de ${r.n_nacional_severidad}</strong>)` : '';
+      return `<strong>Interpretación ejecutiva:</strong> Durante <strong>${yr}</strong>, <strong>${r.entidad}</strong> registró un costo medio por siniestro (severidad) de <strong>$${r.severidad_fmt} MXN</strong>${rkS}, clasificándose en nivel de riesgo <strong>${r.categoria}</strong> con un índice relativo de <strong>${r.indice_fmt} pts</strong>${diffClause}.${mdpClause}${evolClause}`;
+    }
+
+    const validSev = rows.filter(r => r.severidad !== null);
+    if (!validSev.length) return '';
+    const parts = rows
+      .filter(r => r.severidad !== null)
+      .map(
+        r =>
+          `<strong>${r.entidad}</strong> registró <strong>$${r.severidad_fmt} MXN</strong> (<strong>${r.rank_nacional_severidad}.º de ${r.n_nacional_severidad}</strong>, índice <strong>${r.indice_fmt} pts</strong>, categoría <strong>${r.categoria}</strong>)`
+      );
+    let gapClause = '';
+    if (sel && sel.brecha_severidad_abs !== null && sel.lider_severidad !== sel.menor_severidad) {
+      gapClause = ` Esto representa una brecha de <strong>$${sel.brecha_severidad_abs_fmt} MXN</strong> (<strong>+${sel.brecha_severidad_pct_fmt} %</strong> sobre ${sel.menor_severidad}) a favor de <strong>${sel.lider_severidad}</strong>.`;
+    }
+    let mdpContrast = '';
+    if (sel && sel.lideres_difieren) {
+      mdpContrast = ` No obstante, al evaluar el monto agregado en millones de pesos, el liderazgo se invierte hacia <strong>${sel.lider_mdp}</strong> (con una diferencia de <strong>$${sel.brecha_mdp_abs_fmt} MDP</strong> dentro de la selección).`;
+    }
+    return `<strong>Interpretación ejecutiva:</strong> En el ejercicio <strong>${yr}</strong> —frente a una media de referencia de <strong>$${ref.value_fmt} MXN</strong> (n = ${ref.n})—, ${parts.join('; ')}.${gapClause}${mdpContrast}`;
+  }
+
   function formatExecutiveSummaryHtml(summary, structuredJson) {
     const yr = summary.target_year;
     const rows = summary.rows;
@@ -865,6 +1037,11 @@
 
     if (summary.all_severidad_missing) {
       html += `<br/>No hay datos de severidad para ${yr} en las entidades seleccionadas.<br/>`;
+    }
+
+    const narrative = buildHumanNarrativeHtml(summary);
+    if (narrative) {
+      html += `<br/>${narrative}<br/><br/>`;
     }
 
     if (ref.value !== null) {
@@ -912,7 +1089,105 @@
     html += `• El parque INEGI VMRC no equivale a la exposición asegurada y no varía por año en este conjunto de datos.<br/>`;
     html += `• Umbrales absolutos en MXN nominales; no se ajustan por inflación.`;
 
+    if (rows.length > 0) {
+      const buttons = rows
+        .map(r => `<button class="btn-chat-action" onclick="window.selectStateInDashboard('${r.entidad}', '${yr}')">🗺️ Ver ${r.entidad} (${yr})</button>`)
+        .join('');
+      html += `<div class="chat-action-bar">${buttons}<button class="btn-chat-action" onclick="window.highlightAndScrollToTable('${rows[0].entidad}', '${yr}')">🔍 Ver en tabla</button></div>`;
+    }
+
     return html;
+  }
+
+  function formatBusinessRulesHtml(userQuery, data) {
+    const normQ = normalizeText(userQuery);
+    const { mediaRef: ref2024, n: n2024 } = data ? computeNationalReferenceForYear(data, '2024') : { mediaRef: 9041.640571, n: 32 };
+    const cdmxObj = data && data.estados ? data.estados.find(s => s.entidad === 'Ciudad de Mexico') : null;
+    const cdmx2024 = cdmxObj && cdmxObj.yearly_severidad ? cdmxObj.yearly_severidad['2024'] : 14112.41;
+    const cdmxIdx2024 = ref2024 ? (cdmx2024 / ref2024) * 100.0 : 156.1;
+
+    // 1. Regla específica de Índice Relativo / Referencia Nacional
+    if ((normQ.includes('indice') || normQ.includes('relativo') || normQ.includes('base 100') || normQ.includes('referencia nacional')) && !normQ.includes('glosario')) {
+      return `🤖 <strong>Regla de Negocio (RN-01) — Cálculo del Índice Relativo y Referencia Nacional</strong><br/><br/>
+<strong>1. Fórmula Matemática Oficial:</strong>
+<div class="formula-box">
+  <strong>Índice Relativo (Base = 100):</strong><br/>
+  Índice_e(Y) = 100 × [ Severidad_e(Y) / Media_ref(Y) ]<br/>
+  Media_ref(Y) = Σ Severidad_e(Y) / n(Y)
+</div><br/>
+<strong>2. Definición e Interpretación Actuarial:</strong><br/>
+• <strong>Media_ref(Y) (Decisión P1):</strong> Es la media simple de las <code>n(Y)</code> entidades federativas con severidad válida (finita y <code>&gt; 0</code>) en el año <code>Y</code>.<br/>
+• <strong>Base 100.0 pts:</strong> Representa exactamente la media de severidad de las entidades con dato en ese año. Un índice de <strong>156.1 pts</strong> significa que el estado se ubica un <strong>+56.1 % por encima</strong> de la referencia nacional.<br/><br/>
+<strong>3. Reglas de Datos Faltantes y Redondeo (<code>config/actuarial_rules.json</code>):</strong><br/>
+• <strong>Faltantes:</strong> Si la severidad del estado es <code>sin dato</code> o si <code>n(Y) = 0</code>, el índice se reporta como <strong><code>no calculable</code></strong> (nunca se convierte en <code>0</code>).<br/>
+• <strong>Redondeo determinista:</strong> Se calcula con precisión completa (<code>IEEE-754</code>) y se formatea a <strong>1 decimal</strong> con <strong><code>ROUND_HALF_UP</code></strong> (mitad lejos de cero sobre la representación decimal más corta).<br/><br/>
+<strong>4. Ejemplo Real en el Reporte (Ciudad de México, 2024):</strong><br/>
+• <code>Severidad_CDMX(2024)</code> = <strong>$${formatNumber(cdmx2024, 2)} MXN</strong><br/>
+• <code>Media_ref(2024)</code> = <strong>$${formatNumber(ref2024, 2)} MXN (n = ${n2024})</strong><br/>
+• <code>Índice_CDMX(2024)</code> = <code>100 × (${formatNumber(cdmx2024, 2)} / ${formatNumber(ref2024, 2)})</code> = <strong>${formatNumber(cdmxIdx2024, 1)} pts</strong>.`;
+    }
+
+    // 2. Regla específica de Categorías y Umbrales
+    if ((normQ.includes('categoria') || normQ.includes('umbral') || normQ.includes('semaforo') || normQ.includes('clasifica')) && !normQ.includes('glosario')) {
+      return `🤖 <strong>Regla de Negocio (RN-02) — Umbrales de Categoría de Severidad (Decisión P3)</strong><br/><br/>
+<strong>1. Regla Oficial de Clasificación Nominal:</strong>
+<div class="formula-box">
+  • <strong>Crítica (Rojo):</strong> Severidad &ge; $11,000.00 MXN<br/>
+  • <strong>Media (Ámbar):</strong> $7,500.00 MXN &le; Severidad &lt; $11,000.00 MXN<br/>
+  • <strong>Baja (Verde):</strong> 0 &lt; Severidad &lt; $7,500.00 MXN
+</div><br/>
+<strong>2. Reglas de Integridad y Aislamiento Temporal:</strong><br/>
+• La comparación se realiza sobre el valor numérico <strong>sin redondear</strong>.<br/>
+• En consultas de un año específico <code>Y</code>, la categoría proviene exclusivamente de <code>yearly_categoria[Y]</code>. Si falta ese dato o la severidad es inválida, se reporta <strong><code>sin dato</code></strong> (jamás se usa la categoría del promedio 2020–2024 como sustituto silencioso).<br/>
+• Los umbrales están fijos en pesos nominales (no ajustados por inflación).`;
+    }
+
+    // 3. Regla específica de Evolución / Variación / CAGR
+    if ((normQ.includes('evolucion') || normQ.includes('variacion') || normQ.includes('cagr') || normQ.includes('delta')) && !normQ.includes('glosario')) {
+      return `🤖 <strong>Regla de Negocio (RN-03) — Evolución desde 2020 y CAGR</strong><br/><br/>
+<strong>1. Fórmulas Matemáticas:</strong>
+<div class="formula-box">
+  • <strong>Variación % (Severidad o MDP):</strong> ((Valor_Y / Valor_2020) − 1) × 100  [%]<br/>
+  • <strong>Cambio en Índice (Δ Índice):</strong> Índice_Y − Índice_2020  [pts]<br/>
+  • <strong>CAGR Anual (2020–2024):</strong> ((Severidad_2024 / Severidad_2020)^(1/4) − 1) × 100  [% anual]
+</div><br/>
+<strong>2. Reglas de Casos Límite y Propiedad del Modelo (H4):</strong><br/>
+• Si <code>Y = 2020</code> y la base es válida, la variación es <strong><code>0.0 %</code></strong> y <strong><code>0.0 pts</code></strong>.<br/>
+• Si la base 2020 es ausente, nula o <code>0</code>, se reporta <strong><code>no calculable</code></strong>.<br/>
+• La variación <code>%</code> de severidad y la de costo total (MDP) coinciden exactamente porque la severidad se deriva con un número de siniestros fijo por entidad (<code>0.35 × 0.30 × población_2020</code>).`;
+    }
+
+    // 4. Regla específica de Rankings y Empates
+    if ((normQ.includes('ranking') || normQ.includes('posicion') || normQ.includes('empate')) && !normQ.includes('glosario')) {
+      return `🤖 <strong>Regla de Negocio (RN-04) — Rankings y Desempate al Centavo</strong><br/><br/>
+<strong>1. Alcance Nacional y Denominador Dinámico:</strong><br/>
+• Se ordenan de mayor a menor las entidades con dato válido en esa métrica y año: formato <strong><code>k.º de n_métrica(Y)</code></strong>.<br/><br/>
+<strong>2. Regla de Empates (Ranking de Competencia <code>1, 1, 3</code>):</strong><br/>
+• Los valores se comparan redondeados a <strong>2 decimales (centavos)</strong> con <code>ROUND_HALF_UP</code>.<br/>
+• Valores idénticos al centavo comparten la misma posición y la siguiente se salta (ej. <code>1.º, 1.º, 3.º</code>).<br/><br/>
+<strong>3. Alcance de Selección:</strong><br/>
+• Solo se muestra cuando el usuario consulta <code>&ge; 2</code> entidades únicas. Con <code>1</code> entidad se omite.`;
+    }
+
+    // 5. Catálogo General de Reglas de Negocio
+    const natAvgAll = data && data.metadata ? data.metadata.promedio_nacional_severidad : 6674.08;
+    const natMdpAll = data && data.metadata ? data.metadata.total_mdp_nacional_promedio : 90373.46;
+    return `🤖 <strong>Catálogo de Reglas de Negocio Actuariales (<code>config/actuarial_rules.json</code>)</strong><br/><br/>
+<strong>• RN-01 · Referencia Nacional e Índice Relativo (pts):</strong><br/>
+<code>Media_ref(Y) = Σ Severidad_e(Y) / n(Y)</code> (Media de severidad de las entidades con dato; promedio 2020–2024: <strong>$${formatNumber(natAvgAll, 2)} MXN</strong>, n = 32).<br/>
+<code>Índice_e(Y) = 100 × Severidad_e(Y) / Media_ref(Y)</code> (Base 100, redondeado a 1 decimal con <code>ROUND_HALF_UP</code>).<br/><br/>
+<strong>• RN-02 · Umbrales de Categoría de Severidad (P3):</strong><br/>
+🔴 <strong>Crítica:</strong> <code>&ge; $11,000.00 MXN</code> · 🟡 <strong>Media:</strong> <code>$7,500.00 a &lt; $11,000.00 MXN</code> · 🟢 <strong>Baja:</strong> <code>&lt; $7,500.00 MXN</code> (evaluados sin redondear sobre <code>yearly_categoria[Y]</code>).<br/><br/>
+<strong>• RN-03 · Severidad ($/Siniestro) y Costo Total en MDP:</strong><br/>
+<code>1 MDP = $1,000,000 MXN</code> (Total nacional anual promedio: <strong>$${formatNumber(natMdpAll, 2)} MDP</strong>).<br/>
+<code>Costo Total (MDP) = [Exposición asegurada × Frecuencia × Severidad en MXN] / 1,000,000</code>.<br/>
+En este dataset (H4): <code>Severidad = (MDP × 10⁶) / (0.35 × 0.30 × población_2020)</code>.<br/><br/>
+<strong>• RN-04 · Evolución desde 2020:</strong><br/>
+<code>Variación % = ((Valor_Y / Valor_2020) − 1) × 100</code> · <code>Δ Índice (pts) = Índice_Y − Índice_2020</code>.<br/><br/>
+<strong>• RN-05 · Rankings y Empates:</strong><br/>
+Ranking de competencia (<code>1, 1, 3</code>) comparando valores redondeados al centavo (2 decimales) entre las <code>n_métrica(Y)</code> entidades con dato válido.<br/><br/>
+<strong>• RN-06 · Redondeo Determinista y Año por Defecto (P2):</strong><br/>
+Redondeo <code>ROUND_HALF_UP</code> desde la representación decimal más corta del <code>double</code> (<code>-0.00</code> &rarr; <code>0.00</code>). Si se omite el año en un resumen, se usa <strong><code>2024</code></strong> con aviso explícito.`;
   }
 
   return {
@@ -931,6 +1206,9 @@
     computeNationalReferenceForYear,
     computeCompetitionRanksForYear,
     computeExecutiveSummary,
-    formatExecutiveSummaryHtml
+    buildHumanNarrativeHtml,
+    formatExecutiveSummaryHtml,
+    formatBusinessRulesHtml
   };
 });
+

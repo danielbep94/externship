@@ -351,6 +351,17 @@ class TestExecutiveSummary(unittest.TestCase):
         self.assertEqual(ir2["states"], ["Nuevo Leon", "Jalisco"])
         self.assertEqual(ir2["target_year"], 2023)
 
+        # Consultas exactas reportadas por el usuario en navegador:
+        ir3 = self.parser.parse_to_structured_json("resume ejectivo de ciudad de mexico para 2020")
+        self.assertEqual(ir3["intent"], "executive_single_state_summary")
+        self.assertEqual(ir3["states"], ["Ciudad de Mexico"])
+        self.assertEqual(ir3["target_year"], 2020)
+
+        ir4 = self.parser.parse_to_structured_json("crea una explicación de los datos de Ciudad de México severidad para el año 2024")
+        self.assertEqual(ir4["intent"], "executive_single_state_summary")
+        self.assertEqual(ir4["states"], ["Ciudad de Mexico"])
+        self.assertEqual(ir4["target_year"], 2024)
+
     def test_T15_multiple_years_clarification(self):
         """T15: 'Resumen de Jalisco 2020 y 2024'"""
         q = "Resumen de Jalisco 2020 y 2024"
@@ -543,6 +554,24 @@ class TestExecutiveSummary(unittest.TestCase):
         for val, expected in cases_1dec:
             self.assertEqual(format_number(val, 1), expected, f"Falló 1 dec para {val}")
 
+    def test_T27_business_rules_and_human_narrative(self):
+        """Verifica consultas de Reglas de Negocio ('como se calcula indice relativo') y síntesis narrativa humana."""
+        for q_rule in ["como se calcula indice relativo", "mostrar todas las reglas de negocio", "umbrales de categoria"]:
+            ir = self.parser.parse_to_structured_json(q_rule)
+            self.assertEqual(ir["intent"], "glossary_units", f"No enrutó a glossary_units: {q_rule}")
+            resp = self.assistant.ask(q_rule)
+            self.assertTrue("Regla de Negocio" in resp or "Reglas de Negocio" in resp)
+
+        resp_idx = self.assistant.ask("como se calcula indice relativo")
+        self.assertIn("100 × [ Severidad_e(Y) / Media_ref(Y) ]", resp_idx)
+        self.assertIn("ROUND_HALF_UP", resp_idx)
+        self.assertIn("156.1 pts", resp_idx)
+
+        resp_cdmx = self.assistant.ask("crea una explicación de los datos de Ciudad de México severidad para el año 2024")
+        self.assertIn("Interpretación ejecutiva:", resp_cdmx)
+        self.assertIn("56.1 % por encima", resp_cdmx)
+
 
 if __name__ == '__main__':
     unittest.main()
+

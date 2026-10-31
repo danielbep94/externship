@@ -201,3 +201,4 @@ for (const sc of parityVectors.synthetic_cases) {
 console.log(`✅ T26 Parte B (Paridad en ${parityVectors.synthetic_cases.length} fixtures sintéticos T17–T24): PASS`);
 
 console.log(`\n🎉 TODAS LAS PRUEBAS DE PARIDAD NODE <-> PYTHON (${passedCount} verificaciones) PASARON AL 100%.`);
+

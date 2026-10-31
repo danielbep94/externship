@@ -1125,6 +1125,152 @@
       }
     },
     {
+      "id": "T14c",
+      "query": "resume ejectivo de ciudad de mexico para 2020",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Ciudad de Mexico"
+        ],
+        "states_raw": [
+          "ciudad de mexico"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2020,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "resume ejectivo de ciudad de mexico para 2020"
+      },
+      "summary": {
+        "target_year": 2020,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 4511.2196600713505,
+          "value_fmt": "4,511.22",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Ciudad de Mexico",
+            "severidad": 7309.094199342219,
+            "severidad_fmt": "7,309.09",
+            "indice": 162.02035702306318,
+            "indice_fmt": "162.0",
+            "indice_2020": 162.02035702306318,
+            "indice_2020_fmt": "162.0",
+            "categoria": "Baja",
+            "costo_mdp": 7068.216568,
+            "costo_mdp_fmt": "7,068.22",
+            "rank_nacional_severidad": 5,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 2,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 0.0,
+            "var_severidad_fmt": "0.0 %",
+            "var_mdp_pct": 0.0,
+            "var_mdp_fmt": "0.0 %",
+            "delta_indice_pts": 0.0,
+            "delta_indice_fmt": "0.0 pts",
+            "automoviles_registrados": 5450000,
+            "poblacion_2020": 9209944
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
+      "id": "T14d",
+      "query": "crea una explicación de los datos de Ciudad de México severidad para el año 2024",
+      "ir": {
+        "intent": "executive_single_state_summary",
+        "states": [
+          "Ciudad de Mexico"
+        ],
+        "states_raw": [
+          "Ciudad de México"
+        ],
+        "duplicate_mentions": [],
+        "target_year": 2024,
+        "year_source": "explicit",
+        "metrics": [
+          "severidad",
+          "costo_mdp",
+          "indice_relativo",
+          "categoria",
+          "variacion_2020",
+          "ranking"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [
+          "national"
+        ],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.98,
+        "query_text": "crea una explicación de los datos de Ciudad de México severidad para el año 2024"
+      },
+      "summary": {
+        "target_year": 2024,
+        "national_reference": {
+          "method": "simple_mean_entities_with_data",
+          "label": "Media de severidad de las entidades con dato",
+          "value": 9041.640570671145,
+          "value_fmt": "9,041.64",
+          "n": 32
+        },
+        "rows": [
+          {
+            "entidad": "Ciudad de Mexico",
+            "severidad": 14112.406892045425,
+            "severidad_fmt": "14,112.41",
+            "indice": 156.08237002721162,
+            "indice_fmt": "156.1",
+            "indice_2020": 162.02035702306318,
+            "indice_2020_fmt": "162.0",
+            "categoria": "Crítica",
+            "costo_mdp": 13647.320104,
+            "costo_mdp_fmt": "13,647.32",
+            "rank_nacional_severidad": 4,
+            "n_nacional_severidad": 32,
+            "rank_nacional_mdp": 2,
+            "n_nacional_mdp": 32,
+            "var_severidad_pct": 93.08010687993962,
+            "var_severidad_fmt": "+93.1 %",
+            "var_mdp_pct": 93.08010687993963,
+            "var_mdp_fmt": "+93.1 %",
+            "delta_indice_pts": -5.93798699585156,
+            "delta_indice_fmt": "-5.9 pts",
+            "automoviles_registrados": 5450000,
+            "poblacion_2020": 9209944
+          }
+        ],
+        "selection_summary": null,
+        "all_severidad_missing": false,
+        "all_mdp_missing": false
+      }
+    },
+    {
       "id": "T15",
       "query": "Resumen de Jalisco 2020 y 2024",
       "ir": {
@@ -1223,6 +1369,52 @@
         "all_severidad_missing": false,
         "all_mdp_missing": false
       }
+    },
+    {
+      "id": "T27a",
+      "query": "como se calcula indice relativo",
+      "ir": {
+        "intent": "glossary_units",
+        "states": [],
+        "states_raw": [],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [
+          "indice_relativo"
+        ],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "como se calcula indice relativo"
+      },
+      "summary": null
+    },
+    {
+      "id": "T27b",
+      "query": "mostrar todas las reglas de negocio",
+      "ir": {
+        "intent": "glossary_units",
+        "states": [],
+        "states_raw": [],
+        "duplicate_mentions": [],
+        "target_year": null,
+        "year_source": null,
+        "metrics": [],
+        "national_reference": {
+          "method": "simple_mean_entities_with_data"
+        },
+        "ranking_scope": [],
+        "interpretation_notes": [],
+        "insufficient_entities": false,
+        "confidence": 0.95,
+        "query_text": "mostrar todas las reglas de negocio"
+      },
+      "summary": null
     }
   ],
   "synthetic_cases": [

@@ -1421,6 +1421,25 @@ La consulta se encuentra fuera del ámbito actuarial del Dataset Actuarial de Se
 Este asistente solo responde consultas sobre severidad ($ MXN), costo total (MDP), factores de riesgo vehicular e indicadores del reporte.`;
     }
 
+    if (ir.intent === 'insufficient_data_kpi') {
+      const kpiLbl = (ir.missing_kpis && ir.missing_kpis.length) ? ir.missing_kpis.map(k => `<strong>${k}</strong>`).join(', ') : '<strong>ventas, primas o rentabilidad</strong>';
+      const stLbl = (ir.states && ir.states.length) ? ` para <strong>${ir.states.join(', ')}</strong>` : '';
+      const yrLbl = ir.target_year ? ` en <strong>${ir.target_year}</strong>` : '';
+      return `🤖 <strong>Asistente de análisis actuarial — Abstención por Datos No Disponibles (<code>insufficient_data_kpi</code>):</strong><br/><br/>
+No cuento con datos suficientes en <code>data.json</code> para responder sobre ${kpiLbl}${stLbl}${yrLbl}.<br/><br/>
+• <strong>Qué NO incluye el modelo:</strong> El conjunto de datos oficial no contiene registros de <strong>ventas comerciales, primas emitidas o devengadas, rentabilidad financiera (ROE, utilidad, margen), índices sobre prima (Loss Ratio / Combined Ratio), número de pólizas vigentes ni frecuencia observada</strong>.<br/>
+• <strong>Indicadores disponibles que sí puedes consultar:</strong> Severidad unitaria estimada ($ MXN), Costo Total de siniestros ocurridos ($ MDP), Índice Relativo (Base 100) y evolución 2020–2024.<br/><br/>
+<span style="font-size:11px;color:#64748B;">🔎 <strong>Trazabilidad:</strong> Fuente=data.json | Periodo=${ir.target_year || 'N/A'} | Filtros=[Entidades: ${(ir.states && ir.states.length) ? ir.states.join(', ') : 'Nacional'}] | Operación=abstencion_kpi_no_disponible (Reglas: Guardrail-Confiabilidad, RN-03)</span>`;
+    }
+
+    if (ir.intent === 'unsupported_granularity') {
+      const termLbl = (ir.unsupported_terms && ir.unsupported_terms.length) ? ir.unsupported_terms.map(t => `<strong>${t}</strong>`).join(', ') : '<strong>nivel sub-estatal o sub-anual</strong>';
+      return `🤖 <strong>Asistente de análisis actuarial — Abstención por Granularidad No Soportada (<code>unsupported_granularity</code>):</strong><br/><br/>
+No cuento con desagregación suficiente en <code>data.json</code> para consultar ${termLbl}.<br/><br/>
+• <strong>Granularidad mínima disponible:</strong> El modelo está estructurado exclusivamente por <strong>Entidad Federativa (32 estados) × Año calendario (2020 a 2024 y Promedio 2020–2024)</strong>.<br/><br/>
+<span style="font-size:11px;color:#64748B;">🔎 <strong>Trazabilidad:</strong> Fuente=data.json | Periodo=${ir.target_year || 'N/A'} | Filtros=[Entidades: ${(ir.states && ir.states.length) ? ir.states.join(', ') : 'Nacional'}] | Operación=abstencion_granularidad_no_soportada (Reglas: Guardrail-Granularidad)</span>`;
+    }
+
     if (ir.intent === 'temporal_out_of_range' || ir.intent === 'clarification_year') {
       return `🤖 <strong>Asistente de análisis actuarial:</strong><br/>${ir.error_message}`;
     }
@@ -1437,6 +1456,27 @@ Este asistente solo responde consultas sobre severidad ($ MXN), costo total (MDP
     if (ir.intent === 'three_findings') {
       chatMemory.mode = 'chart';
       return generateThreeFindingsResponse();
+    }
+
+    if (ir.intent === 'glossary_units') {
+      chatMemory.mode = 'glossary';
+      if (
+        normQ.includes('como se calcula') ||
+        normQ.includes('como calculan') ||
+        normQ.includes('como se obtiene') ||
+        normQ.includes('como se clasifica') ||
+        normQ.includes('como se define') ||
+        normQ.includes('cual es la formula') ||
+        normQ.includes('cual es la regla') ||
+        normQ.includes('regla') ||
+        normQ.includes('business rule') ||
+        normQ.includes('formula') ||
+        normQ.includes('umbral') ||
+        normQ.includes('empate')
+      ) {
+        return window.ActuarialEngine.formatBusinessRulesHtml(userQuery, rawData);
+      }
+      return generateGlossaryResponse(normQ);
     }
 
     if (ir.intent === 'multi_state_comparison' && ir.insufficient_entities && ir.states.length === 1) {
