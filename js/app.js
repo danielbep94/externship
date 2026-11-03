@@ -41,7 +41,13 @@ const STATE_ALIASES = {
 };
 
 function normalizeStr(str) {
-  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  return String(str || '')
+    .replace(/²/g, '2')
+    .replace(/³/g, '3')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
 }
 
 function levenshteinSimilarity(s1, s2) {
@@ -667,8 +673,10 @@ function renderCharts() {
 
   // Chart 2: Scatter Plot (Precio del vehículo y severidad)
   const scatterCanvas = document.getElementById('chartScatter');
-  if (scatterCanvas) {
-    const scatterPoints = filteredStates.map(s => ({ x: s.precio_promedio_auto_ml_k_mxn, y: s.severidad_promedio, label: s.entidad }));
+  if (scatterCanvas && rawData && rawData.estados) {
+    const scatterPoints = rawData.estados.map(s => ({ x: s.precio_promedio_auto_ml_k_mxn, y: s.severidad_promedio, label: s.entidad }));
+    const pointColors = rawData.estados.map(s => (selectedStateName !== 'ALL' && s.entidad === selectedStateName) ? '#0F172A' : '#2563EB');
+    const pointRadii = rawData.estados.map(s => (selectedStateName !== 'ALL' && s.entidad === selectedStateName) ? 9 : 6);
     const regLine = [
       { x: 200, y: rawData.scatter_stats.slope * 200 + rawData.scatter_stats.intercept },
       { x: 350, y: rawData.scatter_stats.slope * 350 + rawData.scatter_stats.intercept }
@@ -679,7 +687,7 @@ function renderCharts() {
       type: 'scatter',
       data: {
         datasets: [
-          { label: 'Estados (32 Entidades)', data: scatterPoints, backgroundColor: '#2563EB', pointRadius: 6 },
+          { label: 'Estados (32 Entidades)', data: scatterPoints, backgroundColor: pointColors, pointRadius: pointRadii },
           { label: 'Regresión Lineal (r = +0.8488)', data: regLine, type: 'line', borderColor: '#DC2626', borderWidth: 2, pointRadius: 0 }
         ]
       },
@@ -1129,6 +1137,49 @@ La evolución histórica de la severidad media de siniestros automotrices en Mé
 • Si el incremento responde a inflación de costos unitarios de reparación o a un cambio estructural en la severidad (mayor frecuencia de pérdidas totales).`;
 }
 
+// 3b. Chart Explanation: Mapa de Severidad por Estado
+function generateMapExplanation() {
+  return `🤖 <strong>Asistente de análisis actuarial — Mapa Coroplético de Severidad por Estado</strong><br/><br/>
+<strong>1. Qué muestra el mapa:</strong><br/>
+Representa geográficamente el nivel de severidad unitaria (<code>$ MXN por siniestro</code>) en las 32 entidades federativas de México (Marco Geoestadístico INEGI).<br/><br/>
+<strong>2. Semáforo Oficial de Riesgo (Regla RN-02):</strong><br/>
+• 🔴 <strong>Crítica (Rojo):</strong> Severidad <code>&ge; $11,000.00 MXN</code> por siniestro (ej. Nuevo León, Sinaloa, Querétaro, CDMX y Jalisco en 2024).<br/>
+• 🟡 <strong>Media (Ámbar):</strong> Severidad de <code>$7,500.00 a &lt; $11,000.00 MXN</code>.<br/>
+• 🟢 <strong>Baja (Verde):</strong> Severidad <code>&lt; $7,500.00 MXN</code>.<br/><br/>
+<strong>3. Cómo interactuar:</strong><br/>
+• Haz clic sobre cualquier estado en el mapa para actualizar la ficha lateral y ver su severidad, índice relativo (Base 100) y costo total en MDP.`;
+}
+
+// 3c. Growth & CAGR Ranking Explanation ("¿Cuál es el estado con mayor crecimiento acumulado?")
+function generateGrowthRankingResponse() {
+  const sortedCagr = [...rawData.estados].sort((a, b) => b.cagr_2020_2024_pct - a.cagr_2020_2024_pct);
+  const top3 = sortedCagr.slice(0, 3);
+  const leader = top3[0];
+  const leaderAnnual = (Math.pow(1 + leader.cagr_2020_2024_pct / 100, 1 / 4) - 1) * 100;
+  const sev2020 = leader.yearly_severidad ? leader.yearly_severidad['2020'] : leader.severidad_2020;
+  const sev2024 = leader.yearly_severidad ? leader.yearly_severidad['2024'] : leader.severidad_2024;
+
+  let rowsHtml = '';
+  top3.forEach((st, idx) => {
+    const cagrAnual = (Math.pow(1 + st.cagr_2020_2024_pct / 100, 1 / 4) - 1) * 100;
+    const s20 = st.yearly_severidad ? st.yearly_severidad['2020'] : st.severidad_2020;
+    const s24 = st.yearly_severidad ? st.yearly_severidad['2024'] : st.severidad_2024;
+    rowsHtml += `${idx + 1}. <strong>${st.entidad}:</strong> <strong>+${st.cagr_2020_2024_pct.toFixed(1)}% acumulado</strong> (CAGR: <strong>+${cagrAnual.toFixed(1)}% anual</strong> | $${s20.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} &rarr; $${s24.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN)<br/>`;
+  });
+
+  return `🤖 <strong>Asistente de análisis actuarial — Líderes en Crecimiento Acumulado y CAGR (2020–2024):</strong><br/><br/>
+<strong>1. Estado con Mayor Crecimiento Acumulado:</strong><br/>
+• <strong>${leader.entidad}</strong> ocupa el <strong>1.º lugar nacional</strong> con un crecimiento acumulado de <strong>+${leader.cagr_2020_2024_pct.toFixed(1)}%</strong> entre 2020 y 2024 (tasa de crecimiento anual compuesto CAGR de <strong>+${leaderAnnual.toFixed(1)}% anual</strong>), pasando de <strong>$${sev2020.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</strong> en 2020 a <strong>$${sev2024.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</strong> en 2024.<br/><br/>
+<strong>2. Top 3 Nacional de Crecimiento (2020–2024):</strong><br/>
+${rowsHtml}<br/>
+<strong>3. Referencia Nacional (2020 &rarr; 2024):</strong><br/>
+• La media de severidad de las entidades con dato creció de <strong>$4,511.22 MXN en 2020</strong> a <strong>$9,041.64 MXN en 2024</strong> (<strong>+100.4% acumulado</strong>, CAGR de <strong>+19.0% anual</strong>).
+<div class="chat-action-bar">
+  <button class="btn-chat-action" onclick="window.selectStateInDashboard('${leader.entidad}', 'ALL')">🗺️ Ver ${leader.entidad}</button>
+  <button class="btn-chat-action" onclick="window.highlightAndScrollToTable('${leader.entidad}')">🔍 Ver en tabla</button>
+</div>`;
+}
+
 // 4. Three Key Findings ("Contar el reporte en tres hallazgos")
 function generateThreeFindingsResponse() {
   const sortedCagr = [...rawData.estados].sort((a, b) => b.cagr_2020_2024_pct - a.cagr_2020_2024_pct);
@@ -1336,6 +1387,11 @@ function generateStateComparisonResponse(stNameA, stNameB, period = 'ALL') {
   chatMemory.mode = 'comparison';
   chatMemory.lastStates = [metA.entidad, metB.entidad];
   chatMemory.lastYear = period;
+  if (engineMemory && period !== 'ALL') {
+    engineMemory.updateConfirmedContext([metA.entidad, metB.entidad], parseInt(period, 10), 'multi_state_comparison');
+  } else if (engineMemory) {
+    engineMemory.updateConfirmedContext([metA.entidad, metB.entidad], null, 'multi_state_comparison');
+  }
   return res;
 }
 
@@ -1356,6 +1412,11 @@ function generateSingleStateResponse(stName, period = 'ALL') {
   chatMemory.mode = 'single';
   chatMemory.lastStates = [st.entidad];
   chatMemory.lastYear = period;
+  if (engineMemory && period !== 'ALL') {
+    engineMemory.updateConfirmedContext([st.entidad], parseInt(period, 10), 'single_state');
+  } else if (engineMemory) {
+    engineMemory.updateConfirmedContext([st.entidad], null, 'single_state');
+  }
 
   return `🤖 <strong>Asistente de análisis actuarial — Análisis de ${st.entidad}:</strong><br/><br/>
 <strong>1. Qué ocurre (Severidad Unitaria):</strong><br/>
@@ -1374,6 +1435,7 @@ function generateSingleStateResponse(stName, period = 'ALL') {
 • La correlación estadística nacional con el precio del vehículo orienta la tarificación, pero no demuestra por sí sola la causa directa de este nivel de severidad. No se dispone de la cartera de pólizas aseguradas ni de la mezcla de coberturas de la entidad en este tablero para aislar la frecuencia micro.
 <div class="chat-action-bar">
   <button class="btn-chat-action" onclick="window.selectStateInDashboard('${st.entidad}', '${period}')">🗺️ Mostrar en mapa</button>
+  <button class="btn-chat-action" onclick="document.getElementById('chatInput').value='Recomendaciones, acciones preventivas y oportunidades para ${st.entidad}${period !== 'ALL' ? ' en ' + period : ''}'; handleUserChatMessage();">🎯 Recomendaciones y oportunidades</button>
   <button class="btn-chat-action" onclick="window.highlightAndScrollToTable('${st.entidad}', '${period}')">🔍 Ver en tabla</button>
 </div>`;
 }
@@ -1453,6 +1515,34 @@ No cuento con desagregación suficiente en <code>data.json</code> para consultar
       return window.ActuarialEngine.formatExecutiveSummaryHtml(summary, ir);
     }
 
+    if (ir.intent === 'recommendations_actions') {
+      let recStates = Array.isArray(ir.states) ? [...ir.states] : [];
+      const asksNational = /\b(nacional|general|pais|todos|todas|reporte|tablero)\b/.test(normQ);
+      if (recStates.length === 0 && !asksNational) {
+        if (chatMemory.lastStates && chatMemory.lastStates.length > 0) {
+          recStates = [...chatMemory.lastStates];
+        } else if (selectedStateName && selectedStateName !== 'ALL') {
+          recStates = [selectedStateName];
+        }
+      }
+      let recYear = ir.target_year || 2024;
+      const irToUse = { ...ir, states: recStates };
+      if (ir.year_source === 'default' && chatMemory.lastYear && ['2020', '2021', '2022', '2023', '2024'].includes(String(chatMemory.lastYear))) {
+        recYear = parseInt(chatMemory.lastYear, 10);
+        irToUse.target_year = recYear;
+        irToUse.year_source = 'memory';
+        irToUse.interpretation_notes = (ir.interpretation_notes || []).filter(n => !n.includes('No indicaste año'));
+      }
+      const recData = window.ActuarialEngine.computeRecommendationsAndOpportunities(rawData, recStates, recYear);
+      if (recStates.length > 0) {
+        engineMemory.updateConfirmedContext(recStates, recYear, ir.intent);
+        chatMemory.mode = 'recommendations';
+        chatMemory.lastStates = recStates;
+        chatMemory.lastYear = String(recYear);
+      }
+      return window.ActuarialEngine.formatRecommendationsHtml(recData, irToUse);
+    }
+
     if (ir.intent === 'three_findings') {
       chatMemory.mode = 'chart';
       return generateThreeFindingsResponse();
@@ -1460,23 +1550,7 @@ No cuento con desagregación suficiente en <code>data.json</code> para consultar
 
     if (ir.intent === 'glossary_units') {
       chatMemory.mode = 'glossary';
-      if (
-        normQ.includes('como se calcula') ||
-        normQ.includes('como calculan') ||
-        normQ.includes('como se obtiene') ||
-        normQ.includes('como se clasifica') ||
-        normQ.includes('como se define') ||
-        normQ.includes('cual es la formula') ||
-        normQ.includes('cual es la regla') ||
-        normQ.includes('regla') ||
-        normQ.includes('business rule') ||
-        normQ.includes('formula') ||
-        normQ.includes('umbral') ||
-        normQ.includes('empate')
-      ) {
-        return window.ActuarialEngine.formatBusinessRulesHtml(userQuery, rawData);
-      }
-      return generateGlossaryResponse(normQ);
+      return window.ActuarialEngine.formatBusinessRulesHtml(userQuery, rawData);
     }
 
     if (ir.intent === 'multi_state_comparison' && ir.insufficient_entities && ir.states.length === 1) {
@@ -1514,15 +1588,53 @@ No cuento con desagregación suficiente en <code>data.json</code> para consultar
   }
 
   // 3. Scatter Plot / R² Intent
-  if (normQ.includes('r2') || normQ.includes('r²') || normQ.includes('r cuadrada') || normQ.includes('72.05') || normQ.includes('scatter')) {
+  if (
+    normQ.includes('r2') ||
+    normQ.includes('r²') ||
+    normQ.includes('r cuadrada') ||
+    normQ.includes('72 05') ||
+    normQ.includes('72.05') ||
+    normQ.includes('0 7205') ||
+    normQ.includes('8488') ||
+    normQ.includes('scatter') ||
+    normQ.includes('dispersion') ||
+    (normQ.includes('precio') && normQ.includes('vehiculo'))
+  ) {
     chatMemory.mode = 'chart';
     return generateScatterExplanation();
+  }
+
+  // 3d. Growth / CAGR Leader Intent (incl. typos like "crecimoento", "acumulado", "cagr")
+  if ((/\bcrecim\w*\b/.test(normQ) || normQ.includes('cagr') || normQ.includes('incremento') || normQ.includes('duplicaron') || normQ.includes('acumulado')) && foundStates.length === 0) {
+    chatMemory.mode = 'chart';
+    return generateGrowthRankingResponse();
   }
 
   // 4. Trend Chart Intent
   if (normQ.includes('tendencia') || normQ.includes('historico') || normQ.includes('evolucion') || normQ.includes('trend')) {
     chatMemory.mode = 'chart';
     return generateTrendExplanation();
+  }
+
+  // 4b. Map Chart Intent
+  if (normQ.includes('explicar mapa') || (normQ.includes('mapa') && normQ.includes('severidad') && foundStates.length === 0)) {
+    chatMemory.mode = 'chart';
+    return generateMapExplanation();
+  }
+
+  // 4c. Generic "Explícame esta gráfica" / "Explicar gráfica" without specifying which chart
+  if ((normQ.includes('explica') || normQ.includes('explicame')) && (normQ.includes('grafica') || normQ.includes('grafico'))) {
+    chatMemory.mode = 'chart';
+    return `🤖 <strong>Asistente de análisis actuarial — Guía de Gráficas del Tablero:</strong><br/><br/>
+Selecciona cuál de las gráficas deseas analizar a detalle:<br/>
+• <strong>1. Diagrama de Pareto (Costo MDP + % Acumulado):</strong> El Top 5 concentra el <strong>47.1%</strong> del volumen nacional ($42,562.43 MDP de $90,373.46 MDP).<br/>
+• <strong>2. Dispersión Precio del Vehículo vs. Severidad:</strong> Asociación lineal fuerte (<strong>r = +0.8488</strong>, <strong>R² = 72.05%</strong>) sin implicar causalidad directa.<br/>
+• <strong>3. Tendencia Temporal (2020–2024):</strong> La media nacional creció de <strong>$4,511.22 MXN</strong> (2020) a <strong>$9,041.64 MXN</strong> (2024).
+<div class="chat-action-bar">
+  <button class="btn-chat-action" onclick="window.explainChartInChat('pareto')">📊 Explicar Pareto</button>
+  <button class="btn-chat-action" onclick="window.explainChartInChat('scatter')">📈 Explicar Scatter (R²)</button>
+  <button class="btn-chat-action" onclick="window.explainChartInChat('trend')">📉 Explicar Tendencia</button>
+</div>`;
   }
 
   // 5. Variables Impact / Drivers Intent
@@ -1592,23 +1704,49 @@ O pulsa una de estas opciones rápidas:
     return generateSingleStateResponse(targetState, periodToUse);
   }
 
-  // 10. Rankings / Top States
-  if (normQ.includes('top') || normQ.includes('ranking') || normQ.includes('mas caro') || normQ.includes('mas alto') || normQ.includes('severo')) {
+  // 10. Rankings / Top States (Severidad, Índice Relativo, Costo Total MDP, Mayor / Menor)
+  if (normQ.includes('top') || normQ.includes('ranking') || normQ.includes('mayor') || normQ.includes('menor') || normQ.includes('mas caro') || normQ.includes('mas alto') || normQ.includes('mas bajo') || normQ.includes('severo') || normQ.includes('lider') || normQ.includes('primer lugar')) {
+    const isLowest = normQ.includes('menor') || normQ.includes('mas bajo') || normQ.includes('minima') || normQ.includes('minimo') || normQ.includes('barato');
+    const isMdpSort = normQ.includes('mdp') || normQ.includes('costo total') || normQ.includes('volumen');
+    const isRelativeIndexQuery = normQ.includes('indice') || normQ.includes('relativo');
+    const natMetrics = getNationalMetricsForPeriod(periodToUse);
+
     const sorted = [...rawData.estados].sort((a, b) => {
-      const mA = getStateMetricsForPeriod(a, periodToUse).severidad;
-      const mB = getStateMetricsForPeriod(b, periodToUse).severidad;
-      return mB - mA;
+      const mA = getStateMetricsForPeriod(a, periodToUse);
+      const mB = getStateMetricsForPeriod(b, periodToUse);
+      if (isMdpSort) {
+        return isLowest ? (mA.mdp - mB.mdp) : (mB.mdp - mA.mdp);
+      }
+      return isLowest ? (mA.severidad - mB.severidad) : (mB.severidad - mA.severidad);
     }).slice(0, 5);
 
-    let res = `🤖 <strong>Asistente de análisis — Top 5 Estados con Mayor Severidad (${getNationalMetricsForPeriod(periodToUse).label}):</strong><br/><br/>`;
+    const topState = sorted[0];
+    const topM = getStateMetricsForPeriod(topState, periodToUse);
+
+    let titleLabel = 'Top 5 Estados con Mayor Severidad e Índice Relativo';
+    let leadSummary = `• <strong>1.º lugar nacional (${natMetrics.label}):</strong> <strong>${topState.entidad}</strong> lidera tanto en <strong>Índice Relativo (${topM.relIndex.toFixed(1)} pts</strong> vs. base nacional = 100.0 pts) como en <strong>Severidad Unitaria ($${topM.severidad.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</strong> por siniestro).<br/><br/>`;
+
+    if (isLowest) {
+      titleLabel = 'Top 5 Estados con Menor Severidad e Índice Relativo';
+      leadSummary = `• <strong>Menor severidad e índice relativo (${natMetrics.label}):</strong> <strong>${topState.entidad}</strong> registra el nivel más contenido del país con <strong>$${topM.severidad.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</strong> por siniestro e <strong>Índice Relativo de ${topM.relIndex.toFixed(1)} pts</strong>.<br/><br/>`;
+    } else if (isMdpSort) {
+      titleLabel = 'Top 5 Estados con Mayor Costo Total Acumulado (MDP)';
+      leadSummary = `• <strong>Líder en volumen financiero (${natMetrics.label}):</strong> <strong>${topState.entidad}</strong> concentra <strong>$${topM.mdp.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MDP</strong> (Severidad: $${topM.severidad.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN | Índice: ${topM.relIndex.toFixed(1)} pts).<br/><br/>`;
+    } else if (isRelativeIndexQuery) {
+      titleLabel = 'Ranking de Índice Relativo y Severidad por Estado';
+    }
+
+    let res = `🤖 <strong>Asistente de análisis — ${titleLabel} (${natMetrics.label}):</strong><br/><br/>`;
+    res += leadSummary;
     sorted.forEach((s, idx) => {
       const m = getStateMetricsForPeriod(s, periodToUse);
-      res += `${idx + 1}. <strong>${s.entidad}</strong>: $${m.severidad.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN (Índice: ${m.relIndex.toFixed(1)} pts)<br/>`;
+      res += `${idx + 1}. <strong>${s.entidad}</strong>: Índice <strong>${m.relIndex.toFixed(1)} pts</strong> | Severidad <strong>$${m.severidad.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN</strong> ($${m.mdp.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MDP)<br/>`;
     });
-    res += `<br/>• <strong>Concentración Pareto Top 5:</strong> 47.1% del costo nacional total en MDP.<br/>
+    res += `<br/>• <strong>Referencia Nacional (${natMetrics.label}):</strong> $${natMetrics.natAvg.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN (100.0 pts) | <strong>Concentración Pareto Top 5:</strong> 47.1% del costo nacional total en MDP.<br/>
     • <strong>Fuente:</strong> Chubb Baseline & Marco Geoestadístico INEGI.
     <div class="chat-action-bar">
-      <button class="btn-chat-action" onclick="window.highlightAndScrollToTable('')">🔍 Ver matriz completa</button>
+      <button class="btn-chat-action" onclick="window.highlightAndScrollToTable('${topState.entidad}')">🔍 Ver ${topState.entidad} en tabla</button>
+      <button class="btn-chat-action" onclick="window.highlightAndScrollToTable('')">📋 Ver matriz completa</button>
     </div>`;
     return res;
   }

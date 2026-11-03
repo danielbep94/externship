@@ -128,25 +128,37 @@
       'bcs': 'Baja California Sur',
       'baja sur': 'Baja California Sur',
       'chih': 'Chihuahua',
+      'chichuaca': 'Chihuahua',
+      'chihuaha': 'Chihuahua',
+      'chihuhua': 'Chihuahua',
+      'chiuaua': 'Chihuahua',
       'coah': 'Coahuila',
+      'coahulia': 'Coahuila',
       'jal': 'Jalisco',
       'jalisko': 'Jalisco',
       'pue': 'Puebla',
       'tamps': 'Tamaulipas',
+      'tamaulpas': 'Tamaulipas',
       'yuc': 'Yucatan',
       'mich': 'Michoacan',
+      'michocan': 'Michoacan',
       'ags': 'Aguascalientes',
+      'aguascalentes': 'Aguascalientes',
       'gto': 'Guanajuato',
+      'guanajato': 'Guanajuato',
       'gro': 'Guerrero',
       'hgo': 'Hidalgo',
       'mor': 'Morelos',
       'nay': 'Nayarit',
       'oax': 'Oaxaca',
       'qroo': 'Quintana Roo',
+      'quintanaroo': 'Quintana Roo',
       'sinaloa': 'Sinaloa',
       'sonora': 'Sonora',
       'tabasco': 'Tabasco',
       'tlaxcala': 'Tlaxcala',
+      'tlaxacala': 'Tlaxcala',
+      'veracrus': 'Veracruz',
       'zacatecas': 'Zacatecas',
       'camp': 'Campeche',
       'chis': 'Chiapas',
@@ -157,6 +169,8 @@
   function normalizeText(text) {
     if (text === null || text === undefined) return '';
     return String(text)
+      .replace(/²/g, '2')
+      .replace(/³/g, '3')
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
@@ -171,6 +185,14 @@
     const rawChars = [];
     for (let idx = 0; idx < str.length; idx++) {
       const ch = str[idx];
+      if (ch === '²') {
+        rawChars.push({ bc: '2', idx });
+        continue;
+      }
+      if (ch === '³') {
+        rawChars.push({ bc: '3', idx });
+        continue;
+      }
       const base = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
       for (let j = 0; j < base.length; j++) {
         const bc = base[j];
@@ -369,6 +391,69 @@
       }
     }
 
+    // Si no hubo coincidencias exactas por palabra completa, intentar fuzzy matching palabra por palabra (paridad con Python)
+    if (acceptedSpans.length === 0) {
+      const STOP_WORDS = new Set([
+        'son', 'sin', 'ver', 'clima', 'mas', 'los', 'las', 'del', 'con', 'que',
+        'para', 'por', 'cuanto', 'cuales', 'cual', 'como', 'dame', 'presumen', 'ejecutivo',
+        'ejecutiva', 'nacional', 'reporte', 'informe', 'resumen', 'sintesis',
+        'severidad', 'severidades', 'crecimiento', 'crecimoento', 'crecimento', 'acumulado',
+        'indice', 'relativo', 'promedio', 'estado', 'estados', 'entidad', 'entidades',
+        'mayor', 'menor', 'ranking', 'rankings', 'costo', 'costos', 'total', 'totales',
+        'siniestro', 'siniestros', 'vehiculo', 'vehiculos', 'autos', 'riesgo', 'categoria',
+        'comparar', 'compara', 'comparativa', 'frecuencia', 'exposicion', 'correlacion',
+        'variables', 'tendencia', 'evolucion', 'historico', 'anual', 'periodo', 'millones',
+        'paa', 'recomendacion', 'recomendaciones', 'recomienda', 'recomiendas', 'recomendar',
+        'recomednar', 'recomedaciones', 'preventiva', 'preventivas', 'preventivo', 'prevencion',
+        'oportunidad', 'oportunidades', 'oputinidades', 'oportunidaes', 'acciones', 'accion',
+        'identificar', 'identifica', 'estrategia', 'estrategias', 'mitigar', 'mitigacion',
+        'sugerencia', 'sugerencias', 'medidas'
+      ]);
+
+      function levenshteinSim(a, b) {
+        if (a === b) return 1.0;
+        if (!a.length || !b.length) return 0.0;
+        const m = [];
+        for (let i = 0; i <= b.length; i++) m[i] = [i];
+        for (let j = 0; j <= a.length; j++) m[0][j] = j;
+        for (let i = 1; i <= b.length; i++) {
+          for (let j = 1; j <= a.length; j++) {
+            m[i][j] = b[i - 1] === a[j - 1]
+              ? m[i - 1][j - 1]
+              : Math.min(m[i - 1][j - 1] + 1, m[i][j - 1] + 1, m[i - 1][j] + 1);
+          }
+        }
+        return 1.0 - m[b.length][a.length] / Math.max(a.length, b.length);
+      }
+
+      const wordRe = /\b\w+\b/g;
+      let wm;
+      while ((wm = wordRe.exec(normQ)) !== null) {
+        const w = wm[0];
+        if (!STOP_WORDS.has(w) && w.length >= 4 && !/^\d+$/.test(w)) {
+          let bestNorm = null;
+          let bestScore = 0.0;
+          for (const normCand of Object.keys(normCanonical)) {
+            const sc = levenshteinSim(w, normCand);
+            if (sc > bestScore) {
+              bestScore = sc;
+              bestNorm = normCand;
+            }
+          }
+          if (bestNorm && bestScore >= 0.75) {
+            const start = wm.index;
+            const end = start + w.length;
+            acceptedSpans.push({
+              start,
+              end,
+              realName: normCanonical[bestNorm],
+              rawTok: getSurface(start, end)
+            });
+          }
+        }
+      }
+    }
+
     acceptedSpans.sort((a, b) => a.start - b.start);
 
     const uniqueStates = [];
@@ -512,10 +597,26 @@
     return false;
   }
 
+  function isRecommendationsFamily(normQ) {
+    if (/\b(recomend\w*|recomed\w*|sugerenc\w*|sugier\w*|preventiv\w*|prevenci\w*|prevensi\w*|oportunidad\w*|oputinidad\w*|mitig\w*|estrategi\w*)\b/.test(normQ)) {
+      return true;
+    }
+    const phrases = [
+      'accion preventiva', 'acciones preventivas', 'medida preventiva', 'medidas preventivas',
+      'plan de accion', 'planes de accion', 'areas de oportunidad', 'area de oportunidad',
+      'identificar oportunidad', 'identificar oportunidades', 'identifica oportunidades',
+      'como reducir', 'como controlar', 'como bajar', 'que acciones', 'que medidas'
+    ];
+    return phrases.some(p => normQ.includes(p));
+  }
+
   function isBusinessRulesOrGlossary(normQ) {
     const phrases = [
       'glosario', 'definicion', 'que es mdp', 'volumen de costo total mdp',
       'explicar volumen de costo', 'explicar mdp', 'significa mdp', 'que significa',
+      'que es la severidad', 'que es severidad', 'que es la frecuencia', 'que es frecuencia',
+      'que es el indice', 'que es indice', 'que es el costo total', 'que es costo total',
+      'que es r2', 'que es r cuadrada', 'que es cagr',
       'como se calcula', 'como calculan', 'como se obtiene', 'como se clasifica',
       'como se define', 'cual es la formula', 'cual es la regla', 'regla de negocio',
       'reglas de negocio', 'business rule', 'business rules', 'umbrales de', 'umbral de'
@@ -623,8 +724,73 @@
     }
 
     const effectiveStates = mem.getEffectiveStates(extractedStates, userQuery);
+    const isRecommendations = isRecommendationsFamily(normQ);
     const isSummary = isSummaryFamily(normQ, effectiveStates.length > 0);
     const isComparison = isComparisonFamily(normQ);
+
+    if (isRecommendations) {
+      let recStates = [...effectiveStates];
+      const hasNationalWord = ['nacional', 'general', 'pais', 'todos', 'todas', 'reporte', 'tablero'].some(w => words.has(w));
+      if (recStates.length === 0 && !hasNationalWord && mem.confirmed_states && mem.confirmed_states.length > 0) {
+        recStates = [...mem.confirmed_states];
+      }
+
+      const yrRes = mem.resolveYearForSummary(userQuery);
+      if (yrRes.status === 'temporal_out_of_range' || yrRes.status === 'clarification_year') {
+        return {
+          intent: yrRes.status,
+          error_message: yrRes.error_message,
+          states: yrRes.status === 'clarification_year' ? recStates : [],
+          states_raw: statesRaw,
+          duplicate_mentions: duplicateMentions,
+          target_year: null,
+          year_source: null,
+          metrics: [],
+          national_reference: { method: 'simple_mean_entities_with_data' },
+          ranking_scope: [],
+          interpretation_notes: [],
+          insufficient_entities: false,
+          query_text: userQuery
+        };
+      }
+
+      let targetYear = yrRes.target_year;
+      let yearSource = yrRes.year_source;
+      const sameConfirmedStates =
+        recStates.length > 0 &&
+        mem.confirmed_states &&
+        recStates.length === mem.confirmed_states.length &&
+        recStates.every((s, idx) => s === mem.confirmed_states[idx]);
+      if (yearSource === 'default' && sameConfirmedStates && ACTUARIAL_RULES.valid_years.includes(mem.confirmed_year)) {
+        targetYear = mem.confirmed_year;
+        yearSource = 'memory';
+      }
+
+      const notesRec = [];
+      if (yearSource === 'default') {
+        notesRec.push('No indicaste año; uso 2024, último año disponible.');
+      }
+      for (const [stCanon, rawList] of Object.entries(mentionsByState)) {
+        if (rawList.length > 1) {
+          notesRec.push(`${rawList.join(' y ')} corresponden a la misma entidad (${stCanon}).`);
+        }
+      }
+
+      return {
+        intent: 'recommendations_actions',
+        states: recStates,
+        states_raw: statesRaw,
+        duplicate_mentions: duplicateMentions,
+        target_year: targetYear,
+        year_source: yearSource,
+        metrics: ['severidad', 'costo_mdp', 'indice_relativo', 'categoria', 'variacion_2020', 'ranking'],
+        national_reference: { method: 'simple_mean_entities_with_data' },
+        ranking_scope: recStates.length >= 2 ? ['national', 'selection'] : recStates.length === 1 ? ['national'] : [],
+        interpretation_notes: notesRec,
+        insufficient_entities: false,
+        query_text: userQuery
+      };
+    }
 
     if (isSummary && effectiveStates.length >= 1) {
       const yrRes = mem.resolveYearForSummary(userQuery);
@@ -690,7 +856,7 @@
     }
 
     const isPeriodRange =
-      (words.has('promedio') || words.has('periodo') || words.has('historico')) &&
+      (words.has('promedio') || words.has('periodo') || words.has('historico') || words.has('cagr') || words.has('crecimiento') || words.has('tendencia')) &&
       uniqueYears.length === 2 &&
       uniqueYears[0] === 2020 &&
       uniqueYears[1] === 2024;
@@ -1093,6 +1259,250 @@
       const buttons = rows
         .map(r => `<button class="btn-chat-action" onclick="window.selectStateInDashboard('${r.entidad}', '${yr}')">🗺️ Ver ${r.entidad} (${yr})</button>`)
         .join('');
+      const recTarget = rows.map(r => r.entidad).join(' y ');
+      const recBtn = `<button class="btn-chat-action" onclick="document.getElementById('chatInput').value='Recomendaciones, acciones preventivas y oportunidades para ${recTarget} en ${yr}'; handleUserChatMessage();">🎯 Recomendaciones y oportunidades</button>`;
+      html += `<div class="chat-action-bar">${buttons}${recBtn}<button class="btn-chat-action" onclick="window.highlightAndScrollToTable('${rows[0].entidad}', '${yr}')">🔍 Ver en tabla</button></div>`;
+    }
+
+    return html;
+  }
+
+  function computeRecommendationsAndOpportunities(data, stateNames, targetYear) {
+    const hasStates = Array.isArray(stateNames) && stateNames.length > 0;
+    const execSummary = hasStates ? computeExecutiveSummary(data, stateNames, targetYear) : null;
+    const yrStr = String(targetYear || 2024);
+
+    const { mediaRef: mediaRef2020 } = computeNationalReferenceForYear(data, '2020');
+    const { mediaRef: mediaRef2024 } = computeNationalReferenceForYear(data, '2024');
+    const natCagrAcum = mediaRef2020 && mediaRef2024 ? ((mediaRef2024 - mediaRef2020) / mediaRef2020) * 100.0 : 0.0;
+    const natCagrAnual = (Math.pow(1.0 + natCagrAcum / 100.0, 0.25) - 1.0) * 100.0;
+
+    const nEst = data.estados.length || 1;
+    const natPrecioAutoK = data.estados.reduce((acc, s) => acc + Number(s.precio_promedio_auto_ml_k_mxn || 0), 0) / nEst;
+    const natMotorizacion = data.estados.reduce((acc, s) => acc + Number(s.autos_por_1000_hab || 0), 0) / nEst;
+
+    const totalMdpYr = data.estados.reduce((acc, s) => {
+      const mv = s.yearly_mdp ? s.yearly_mdp[yrStr] : null;
+      return isValidMdp(mv) ? acc + Number(mv) : acc;
+    }, 0);
+
+    const rVal = Number(data.scatter_stats ? data.scatter_stats.r_pearson : 0.8488);
+    const r2Pct = Number(data.scatter_stats ? data.scatter_stats.r2_score : 0.7205) * 100.0;
+
+    const estadosDict = {};
+    for (const s of data.estados) {
+      estadosDict[s.entidad] = s;
+    }
+
+    const enrichedRows = [];
+    if (execSummary) {
+      for (const r of execSummary.rows) {
+        const st = estadosDict[r.entidad];
+        const cagrAcum = Number(st.cagr_2020_2024_pct);
+        const cagrAnual = (Math.pow(1.0 + cagrAcum / 100.0, 0.25) - 1.0) * 100.0;
+        const precioK = Number(st.precio_promedio_auto_ml_k_mxn);
+        const motor = Number(st.autos_por_1000_hab);
+        const costoAuto = Number(st.costo_por_auto_registrado);
+        const sevProm = Number(st.severidad_promedio);
+        const catPer = displayCategoryLabel(st.categoria_severidad);
+        const pctMdpYr = r.costo_mdp !== null && totalMdpYr > 0 ? (r.costo_mdp / totalMdpYr) * 100.0 : null;
+
+        enrichedRows.push({
+          ...r,
+          severidad_promedio: sevProm,
+          severidad_promedio_fmt: formatNumber(sevProm, 2),
+          categoria_periodo: catPer,
+          cagr_acumulado: cagrAcum,
+          cagr_acumulado_fmt: `+${formatNumber(cagrAcum, 1)} %`,
+          cagr_anual: cagrAnual,
+          cagr_anual_fmt: `+${formatNumber(cagrAnual, 1)} %`,
+          precio_auto_k: precioK,
+          precio_auto_k_fmt: formatNumber(precioK, 0),
+          autos_por_1000_hab: motor,
+          autos_por_1000_hab_fmt: formatNumber(motor, 1),
+          costo_por_auto: costoAuto,
+          costo_por_auto_fmt: formatNumber(costoAuto, 2),
+          pct_costo_nacional_yr: pctMdpYr,
+          pct_costo_nacional_yr_fmt: pctMdpYr !== null ? formatNumber(pctMdpYr, 1) : 'no calculable'
+        });
+      }
+    }
+
+    let portfolioContext = null;
+    if (!hasStates) {
+      const sortedMdp = [...data.estados].sort((a, b) => b.siniestros_ocurridos_mdp_promedio - a.siniestros_ocurridos_mdp_promedio);
+      const top5Mdp = sortedMdp.slice(0, 5);
+      const sum5Mdp = top5Mdp.reduce((acc, s) => acc + s.siniestros_ocurridos_mdp_promedio, 0);
+      const totNatMdp = Number(data.metadata.total_mdp_nacional_promedio);
+      const paretoPct = (sum5Mdp / totNatMdp) * 100.0;
+
+      const sortedSev = [...data.estados].sort((a, b) => b.severidad_promedio - a.severidad_promedio);
+      const sortedCagr = [...data.estados].sort((a, b) => b.cagr_2020_2024_pct - a.cagr_2020_2024_pct);
+
+      portfolioContext = {
+        pareto: {
+          pct_k: paretoPct,
+          sum_k_mdp: sum5Mdp,
+          total_national_mdp: totNatMdp,
+          top_states: top5Mdp.map((s, idx) => ({
+            rank: idx + 1,
+            entidad: s.entidad,
+            mdp: s.siniestros_ocurridos_mdp_promedio,
+            pct_nacional: s.pct_costo_nacional
+          }))
+        },
+        top_sev: sortedSev.slice(0, 5).map((s, idx) => ({
+          rank: idx + 1,
+          entidad: s.entidad,
+          severidad: s.severidad_promedio,
+          indice: s.indice_severidad
+        })),
+        min_state: {
+          entidad: sortedSev[sortedSev.length - 1].entidad,
+          severidad: sortedSev[sortedSev.length - 1].severidad_promedio,
+          idx: sortedSev[sortedSev.length - 1].indice_severidad
+        },
+        growth_leaders: sortedCagr.slice(0, 3).map(s => ({
+          entidad: s.entidad,
+          cagr_acumulado: s.cagr_2020_2024_pct,
+          cagr_anual: (Math.pow(1.0 + s.cagr_2020_2024_pct / 100.0, 0.25) - 1.0) * 100.0
+        }))
+      };
+    }
+
+    const fallbackRef = computeNationalReferenceForYear(data, yrStr);
+    return {
+      scope: hasStates ? 'state' : 'national',
+      target_year: Number(targetYear || 2024),
+      national_reference: execSummary
+        ? execSummary.national_reference
+        : {
+            method: 'simple_mean_entities_with_data',
+            label: 'Media de severidad de las entidades con dato',
+            value: fallbackRef.mediaRef,
+            value_fmt: fallbackRef.mediaRef !== null ? formatNumber(fallbackRef.mediaRef, 2) : 'no calculable',
+            n: fallbackRef.n
+          },
+      rows: enrichedRows,
+      selection_summary: execSummary ? execSummary.selection_summary : null,
+      national_benchmarks: {
+        nat_cagr_acum: natCagrAcum,
+        nat_cagr_acum_fmt: `+${formatNumber(natCagrAcum, 1)} %`,
+        nat_cagr_anual: natCagrAnual,
+        nat_cagr_anual_fmt: `+${formatNumber(natCagrAnual, 1)} %`,
+        nat_precio_auto_k: natPrecioAutoK,
+        nat_precio_auto_k_fmt: formatNumber(natPrecioAutoK, 1),
+        nat_motorizacion: natMotorizacion,
+        nat_motorizacion_fmt: formatNumber(natMotorizacion, 1),
+        total_mdp_yr: totalMdpYr,
+        total_mdp_yr_fmt: formatNumber(totalMdpYr, 2),
+        r_pearson: rVal,
+        r_pearson_fmt: formatNumber(rVal, 4, false),
+        r2_pct: r2Pct,
+        r2_pct_fmt: formatNumber(r2Pct, 2)
+      },
+      portfolio_context: portfolioContext
+    };
+  }
+
+  function formatRecommendationsHtml(recData, structuredJson) {
+    const yr = recData.target_year;
+    const rows = recData.rows;
+    const ref = recData.national_reference;
+    const bench = recData.national_benchmarks;
+    const notes = (structuredJson && structuredJson.interpretation_notes) || [];
+
+    if (recData.scope === 'national' || !rows.length) {
+      const ctx = recData.portfolio_context;
+      const pareto = ctx.pareto;
+      const topSev = ctx.top_sev;
+      const growth = ctx.growth_leaders;
+      const minSt = ctx.min_state;
+
+      let html = `🤖 <strong>Recomendaciones, Acciones Preventivas y Oportunidades — Cartera Nacional (${yr})</strong><br/>`;
+      for (const note of notes) {
+        html += `ℹ️ <em>${note}</em><br/>`;
+      }
+      html += `<br/><strong>1. Diagnóstico Cuantitativo Base (Evidencia del Reporte):</strong><br/>`;
+      html += `• <strong>Concentración Financiera (Pareto):</strong> El Top 5 concentra el <strong>${formatNumber(pareto.pct_k, 1)} %</strong> del costo nacional (<strong>$${formatNumber(pareto.sum_k_mdp, 2)} MDP</strong> de <strong>$${formatNumber(pareto.total_national_mdp, 2)} MDP</strong> anuales), liderado por <strong>${pareto.top_states[0].entidad} ($${formatNumber(pareto.top_states[0].mdp, 2)} MDP)</strong> y <strong>${pareto.top_states[1].entidad} ($${formatNumber(pareto.top_states[1].mdp, 2)} MDP)</strong>.<br/>`;
+      html += `• <strong>Severidad Crítica y Dinámica 2020–2024:</strong> <strong>${topSev[0].entidad}</strong> encabeza la severidad promedio con <strong>$${formatNumber(topSev[0].severidad, 2)} MXN</strong> (índice <strong>${formatNumber(topSev[0].indice, 1)} pts</strong>), mientras que <strong>${growth[0].entidad}</strong> registra el mayor crecimiento acumulado con <strong>+${formatNumber(growth[0].cagr_acumulado, 1)} %</strong> (CAGR <strong>+${formatNumber(growth[0].cagr_anual, 1)} %</strong> anual).<br/><br/>`;
+
+      html += `<strong>2. Acciones Preventivas y de Mitigación:</strong><br/>`;
+      html += `• <strong>Control de talleres y valuación en polos de Severidad Crítica (&ge; $11,000.00 MXN):</strong> Establecer convenios de tabuladores cerrados de mano de obra y compra consolidada de autopartes en <strong>${topSev[0].entidad} ($${formatNumber(topSev[0].severidad, 2)} MXN)</strong>, <strong>${topSev[1].entidad} ($${formatNumber(topSev[1].severidad, 2)} MXN)</strong> y <strong>${topSev[2].entidad} ($${formatNumber(topSev[2].severidad, 2)} MXN)</strong>, considerando la asociación con el precio comercial vehicular (<strong>r = +${bench.r_pearson_fmt}</strong>, <strong>R² = ${bench.r2_pct_fmt} %</strong>).<br/>`;
+      html += `• <strong>Prevención vial focalizada en el Top 5 Pareto (${formatNumber(pareto.pct_k, 1)} % del volumen):</strong> Desplegar telemetría en flotillas y programas de prevención en corredores urbanos de <strong>${pareto.top_states.map(s => s.entidad).join(', ')}</strong>.<br/>`;
+      html += `• <strong>Vigilancia de inflación siniestral (2020–2024):</strong> Auditar suficiencia de sumas aseguradas en entidades con aceleración superior a la media nacional (<strong>${bench.nat_cagr_acum_fmt}</strong>), encabezadas por <strong>${growth[0].entidad} (+${formatNumber(growth[0].cagr_acumulado, 1)} %)</strong> y <strong>${growth[1].entidad} (+${formatNumber(growth[1].cagr_acumulado, 1)} %)</strong>.<br/><br/>`;
+
+      html += `<strong>3. Identificación de Oportunidades Basadas en los Datos:</strong><br/>`;
+      html += `• <strong>Crecimiento selectivo en plazas de Severidad Baja (&lt; $7,500.00 MXN):</strong> Impulsar penetración comercial en mercados con severidad contenida, como <strong>${minSt.entidad} ($${formatNumber(minSt.severidad, 2)} MXN, índice ${formatNumber(minSt.idx, 1)} pts)</strong>, manteniendo disciplina de suscripción.<br/>`;
+      html += `• <strong>Productos modulares para el parque en circulación (INEGI VMRC):</strong> Desarrollar coberturas escalonadas (Responsabilidad Civil ampliada y deducible flexible) para capturar parque registrado no asegurado sin presionar la severidad media.<br/><br/>`;
+
+      html += `<strong>4. Alcance y Guardrail Metodológico:</strong><br/>`;
+      html += `• Recomendaciones derivadas de los indicadores macroestatales de <code>data.json</code> (RN-01 a RN-06). La asociación estadística con el precio vehicular no implica causalidad directa única.`;
+      html += `<div class="chat-action-bar">
+        <button class="btn-chat-action" onclick="window.highlightAndScrollToTable('')">🔍 Ver matriz nacional</button>
+      </div>`;
+      return html;
+    }
+
+    const stateTitles = rows.map(r => r.entidad).join(', ');
+    let html = `🤖 <strong>Recomendaciones, Acciones Preventivas y Oportunidades — ${stateTitles} (${yr})</strong><br/>`;
+    for (const note of notes) {
+      html += `ℹ️ <em>${note}</em><br/>`;
+    }
+
+    html += `<br/><strong>1. Diagnóstico Cuantitativo Base (<code>data.json</code> · ${yr}):</strong><br/>`;
+    for (const r of rows) {
+      const diffVs100 = r.indice !== null ? Math.abs(r.indice - 100.0) : 0.0;
+      const dirStr = r.indice !== null && r.indice >= 100.0 ? 'por encima' : 'por debajo';
+      let catShift = '';
+      if (r.categoria !== r.categoria_periodo) {
+        catShift = ` <em>(escaló de categoría <strong>${r.categoria_periodo}</strong> en el promedio 2020–2024 [$${r.severidad_promedio_fmt} MXN] a <strong>${r.categoria}</strong> en ${yr})</em>`;
+      }
+      html += `• <strong>${r.entidad}</strong>: Severidad de <strong>$${r.severidad_fmt} MXN</strong> por siniestro (<strong>${r.rank_nacional_severidad}.º lugar nacional de ${r.n_nacional_severidad}</strong>), clasificada en nivel <strong>${r.categoria}</strong>${catShift} con un Índice Relativo de <strong>${r.indice_fmt} pts</strong> (<strong>${formatNumber(diffVs100, 1)} % ${dirStr}</strong> de la media nacional de <strong>$${ref.value_fmt} MXN</strong>, n = ${ref.n}).<br/>`;
+      html += `&nbsp;&nbsp;- <strong>Volumen y Evolución (2020 → ${yr}):</strong> Acumula <strong>$${r.costo_mdp_fmt} MDP</strong> (<strong>${r.rank_nacional_mdp}.º de ${r.n_nacional_mdp}</strong>, <strong>${r.pct_costo_nacional_yr_fmt} %</strong> del costo nacional en ${yr}). Frente a 2020, su severidad varió <strong>${r.var_severidad_fmt}</strong> (CAGR 2020–2024: <strong>${r.cagr_anual_fmt}</strong> anual) y su índice relativo cambió en <strong>${r.delta_indice_fmt}</strong> (de <strong>${r.indice_2020_fmt}</strong> a <strong>${r.indice_fmt} pts</strong>).<br/>`;
+      html += `&nbsp;&nbsp;- <strong>Factores del Parque Vehicular:</strong> Precio comercial medio del vehículo de <strong>$${r.precio_auto_k_fmt}k MXN</strong> (media estatal: <strong>$${bench.nat_precio_auto_k_fmt}k MXN</strong>; asociación nacional <strong>r = +${bench.r_pearson_fmt}</strong>, <strong>R² = ${bench.r2_pct_fmt} %</strong>) y tasa de motorización de <strong>${r.autos_por_1000_hab_fmt} autos / 1,000 hab.</strong> (<strong>${r.automoviles_registrados.toLocaleString('es-MX')} autos</strong> registrados INEGI VMRC vs. <strong>${bench.nat_motorizacion_fmt}</strong> de media estatal).<br/>`;
+    }
+
+    html += `<br/><strong>2. Acciones Preventivas y de Mitigación de Severidad:</strong><br/>`;
+    for (const r of rows) {
+      if (r.categoria === 'Crítica' || (r.indice !== null && r.indice >= 110.0)) {
+        html += `• <strong>Control de costos de reparación y talleres en ${r.entidad} (Severidad ${r.categoria}: $${r.severidad_fmt} MXN | Índice: ${r.indice_fmt} pts):</strong> Dado que rebasa el umbral crítico de <strong>$11,000.00 MXN</strong> y registra un valor comercial vehicular de <strong>$${r.precio_auto_k_fmt}k MXN</strong>, implementar <strong>convenios de tabuladores cerrados de mano de obra, compra consolidada de autopartes y auditoría técnica obligatoria</strong> en reclamos mayores a <strong>$11,000.00 MXN</strong>, además de revisar umbrales de pérdida total.<br/>`;
+      } else if (r.categoria === 'Media') {
+        const gapCrit = Math.max(0.0, 11000.0 - (r.severidad || 0.0));
+        html += `• <strong>Contención preventiva de estrato en ${r.entidad} (Severidad Media: $${r.severidad_fmt} MXN | Brecha a Crítica: $${formatNumber(gapCrit, 2)} MXN):</strong> Reforzar <strong>direccionamiento a red de talleres preferentes y topes de valuación por orden de reparación</strong> para evitar que la entidad rebase el umbral crítico de <strong>$11,000.00 MXN</strong>.<br/>`;
+      } else {
+        html += `• <strong>Preservación de severidad contenida en ${r.entidad} (Severidad Baja: $${r.severidad_fmt} MXN | Índice: ${r.indice_fmt} pts):</strong> Mantener acuerdos tarifarios con talleres locales y control de costos médicos/RC para conservar la severidad por debajo del límite de <strong>$7,500.00 MXN</strong>.<br/>`;
+      }
+
+      html += `• <strong>Prevención vial focalizada por densidad vehicular (${r.autos_por_1000_hab_fmt} autos / 1,000 hab.) y volumen ($${r.costo_mdp_fmt} MDP):</strong> Desplegar <strong>alertas preventivas en corredores urbanos, telemetría en flotillas y esquemas de deducible diferenciado</strong> en las zonas que concentran los <strong>$${r.costo_mdp_fmt} MDP</strong> (<strong>${r.rank_nacional_mdp}.º lugar nacional</strong>).<br/>`;
+
+      if (r.delta_indice_pts !== null && r.delta_indice_pts > 0) {
+        html += `• <strong>Ajuste por aceleración inflacionaria en ${r.entidad} (${r.var_severidad_fmt} desde 2020 | &Delta; Índice: ${r.delta_indice_fmt}):</strong> Su severidad creció por encima de la media nacional (<strong>${bench.nat_cagr_acum_fmt}</strong>), elevando su índice de <strong>${r.indice_2020_fmt}</strong> a <strong>${r.indice_fmt} pts</strong>. Se recomienda <strong>actualización prioritaria de suficiencia tarifaria y sumas aseguradas</strong>.<br/>`;
+      } else {
+        html += `• <strong>Vigilancia de inflación nominal en ${r.entidad} (${r.var_severidad_fmt} desde 2020 | CAGR: ${r.cagr_anual_fmt} anual):</strong> Aunque su índice relativo se moderó en <strong>${r.delta_indice_fmt}</strong> (<strong>${r.indice_2020_fmt} &rarr; ${r.indice_fmt} pts</strong>), el alza nominal acumulada llevó la severidad a <strong>$${r.severidad_fmt} MXN</strong>. Se recomienda <strong>indexación preventiva de sumas aseguradas y monitoreo trimestral de autopartes</strong>.<br/>`;
+      }
+    }
+
+    html += `<br/><strong>3. Identificación de Oportunidades Basadas en los Datos:</strong><br/>`;
+    for (const r of rows) {
+      if (r.delta_indice_pts !== null && r.delta_indice_pts <= 0) {
+        html += `• <strong>Oportunidad de retención y crecimiento selectivo por estabilización relativa (${r.delta_indice_fmt} en índice 2020 → ${yr}):</strong> <strong>${r.entidad}</strong> creció a un ritmo menor que el promedio nacional (<strong>${r.var_severidad_fmt}</strong> vs. <strong>${bench.nat_cagr_acum_fmt}</strong> nacional), reduciendo su índice de <strong>${r.indice_2020_fmt}</strong> a <strong>${r.indice_fmt} pts</strong>. Esto abre oportunidad para <strong>fidelizar cartera sana y crecer selectivamente</strong> en segmentos de riesgo controlado.<br/>`;
+      } else {
+        html += `• <strong>Oportunidad de re-segmentación técnica en ${r.entidad} (${r.delta_indice_fmt} en índice 2020 → ${yr}):</strong> Introducir productos con <strong>deducible calibrado y taller multimarca certificado</strong> para recuperar margen técnico frente al incremento relativo de severidad.<br/>`;
+      }
+
+      html += `• <strong>Oportunidad de penetración sobre el parque vehicular registrado (${r.automoviles_registrados.toLocaleString('es-MX')} autos INEGI VMRC):</strong> Con una motorización de <strong>${r.autos_por_1000_hab_fmt} autos / 1,000 hab.</strong> y un costo anual medio por auto registrado de <strong>$${r.costo_por_auto_fmt} MXN</strong> (promedio 2020–2024), diseñar <strong>coberturas modulares (Responsabilidad Civil ampliada, pérdida total o deducible flexible)</strong> para captar parque en circulación no asegurado sin presionar la severidad unitaria (<strong>$${r.severidad_fmt} MXN</strong>).<br/>`;
+      html += `• <strong>Calibración de oferta según valor comercial regional ($${r.precio_auto_k_fmt}k MXN):</strong> Alinear paquetes de cobertura amplia y reparación al valor comercial promedio de <strong>$${r.precio_auto_k_fmt}k MXN</strong> en <strong>${r.entidad}</strong>, optimizando la relación entre valor del activo y costo medio por reclamo.<br/>`;
+    }
+
+    html += `<br/><strong>4. Alcance y Guardrail Metodológico:</strong><br/>`;
+    html += `• Estas recomendaciones se derivan de los indicadores agregados verificados en <code>data.json</code> (RN-01 a RN-06).<br/>`;
+    html += `• La asociación entre precio vehicular y severidad (<strong>r = +${bench.r_pearson_fmt}</strong>, <strong>R² = ${bench.r2_pct_fmt} %</strong>) es orientativa y <strong>no implica causalidad directa única</strong>; decisiones de suscripción o tarifa a nivel póliza requieren cruzar con exposición asegurada y frecuencia observada.`;
+
+    if (rows.length > 0) {
+      const buttons = rows
+        .map(r => `<button class="btn-chat-action" onclick="window.selectStateInDashboard('${r.entidad}', '${yr}')">🗺️ Ver ${r.entidad} (${yr})</button>`)
+        .join('');
       html += `<div class="chat-action-bar">${buttons}<button class="btn-chat-action" onclick="window.highlightAndScrollToTable('${rows[0].entidad}', '${yr}')">🔍 Ver en tabla</button></div>`;
     }
 
@@ -1169,9 +1579,106 @@
 • Solo se muestra cuando el usuario consulta <code>&ge; 2</code> entidades únicas. Con <code>1</code> entidad se omite.`;
     }
 
-    // 5. Catálogo General de Reglas de Negocio
+    const isFullCatalogReq =
+      normQ.includes('glosario') || normQ.includes('catalogo') || normQ.includes('todas las reglas');
     const natAvgAll = data && data.metadata ? data.metadata.promedio_nacional_severidad : 6674.08;
     const natMdpAll = data && data.metadata ? data.metadata.total_mdp_nacional_promedio : 90373.46;
+
+    // 5. Explicación clara y pedagógica de Severidad (¿Qué es y cómo se calcula?)
+    if (normQ.includes('severidad') && !isFullCatalogReq) {
+      const detStates = extractStatesDetailed(userQuery, data && data.estados ? data.estados.map(s => s.entidad) : null).states;
+      const exStateName = detStates.length > 0 ? detStates[0] : 'Ciudad de Mexico';
+      const exSt =
+        data && data.estados
+          ? data.estados.find(s => s.entidad === exStateName) || cdmxObj
+          : null;
+      const exSev2024 = exSt && exSt.yearly_severidad ? exSt.yearly_severidad['2024'] : 14112.41;
+      const exMdp2024 = exSt && exSt.yearly_mdp ? exSt.yearly_mdp['2024'] : 13647.32;
+      const exPob2020 = exSt && exSt.poblacion_2020 ? exSt.poblacion_2020 : 9209944;
+      const exClaims = 0.35 * 0.30 * exPob2020;
+      const exIdx2024 = ref2024 ? (exSev2024 / ref2024) * 100.0 : 156.1;
+      const exCat2024 =
+        exSt && exSt.yearly_categoria && exSt.yearly_categoria['2024']
+          ? displayCategoryLabel(exSt.yearly_categoria['2024'])
+          : 'Crítica';
+
+      return `🤖 <strong>¿Qué es la Severidad y cómo se calcula? (Reglas RN-02 y RN-03)</strong><br/><br/>
+<strong>1. ¿Qué es la Severidad? (En lenguaje sencillo):</strong><br/>
+• La <strong>severidad</strong> es el <strong>costo económico promedio de cada siniestro</strong>; es decir, cuánto cuesta en promedio reparar o indemnizar <strong>un solo accidente vehicular</strong> (expresado en <strong><code>$ MXN por siniestro</code></strong>).<br/>
+• <strong>Diferencia clave frente al Costo Total (<code>MDP</code>):</strong> La severidad mide qué tan caro es <em>cada choque individual</em>, mientras que el <strong>Costo Total (<code>MDP</code>)</strong> suma el dinero de <em>todos los siniestros ocurridos en el estado</em>.<br/><br/>
+<strong>2. ¿Cómo se calcula? (Fórmula Actuarial y del Modelo):</strong>
+<div class="formula-box">
+  <strong>Fórmula general actuarial:</strong><br/>
+  Severidad ($ MXN) = Costo Total de Siniestros ($) / Número de Siniestros Ocurridos<br/><br/>
+  <strong>Fórmula en este conjunto de datos (RN-03, supuesto H4):</strong><br/>
+  Severidad_e(Y) = [ Costo_Total_MDP_e(Y) × 1,000,000 ] / Siniestros_Estimados_e<br/>
+  donde Siniestros_Estimados_e = 35 % (exposición) × 30 % (frecuencia) × Población_2020_e
+</div><br/>
+<strong>3. Ejemplo paso a paso con datos reales (${exStateName}, 2024):</strong><br/>
+• <strong>Paso 1 (Costo Total en 2024):</strong> <strong>$${formatNumber(exMdp2024, 2)} MDP</strong> (equivalente a <strong>$${formatNumber(exMdp2024 * 1000000, 0)} MXN</strong>).<br/>
+• <strong>Paso 2 (Siniestros estimados):</strong> <code>35 % × 30 % × ${formatNumber(exPob2020, 0)} habitantes</code> = <strong>${formatNumber(exClaims, 2)} siniestros</strong>.<br/>
+• <strong>Paso 3 (División):</strong> <code>$${formatNumber(exMdp2024 * 1000000, 0)} MXN / ${formatNumber(exClaims, 2)} siniestros</code> = <strong>$${formatNumber(exSev2024, 2)} MXN por siniestro</strong> (Categoría: <strong>${exCat2024}</strong>, Índice Relativo: <strong>${formatNumber(exIdx2024, 1)} pts</strong> frente a la media nacional 2024 de <strong>$${formatNumber(ref2024, 2)} MXN</strong>, <code>n = ${n2024}</code>).<br/><br/>
+<strong>4. ¿Cómo se clasifica el nivel de severidad? (Semáforo RN-02):</strong><br/>
+• 🔴 <strong>Crítica:</strong> <code>&ge; $11,000.00 MXN</code> por siniestro.<br/>
+• 🟡 <strong>Media:</strong> <code>$7,500.00 a &lt; $11,000.00 MXN</code> por siniestro.<br/>
+• 🟢 <strong>Baja:</strong> <code>&lt; $7,500.00 MXN</code> por siniestro.`;
+    }
+
+    // 6. Explicación específica de Costo Total (MDP / Millones de Pesos)
+    if (
+      (normQ.includes('mdp') || normQ.includes('costo total') || normQ.includes('millones de pesos') || normQ.includes('volumen de costo')) &&
+      !isFullCatalogReq
+    ) {
+      const edomexObj = data && data.estados ? data.estados.find(s => s.entidad === 'Estado de Mexico') : null;
+      const edomexMdp2024 = edomexObj && edomexObj.yearly_mdp ? edomexObj.yearly_mdp['2024'] : 14461.57;
+      const cdmxMdp2024 = cdmxObj && cdmxObj.yearly_mdp ? cdmxObj.yearly_mdp['2024'] : 13647.32;
+      return `🤖 <strong>¿Qué es el Costo Total (<code>MDP</code>) y cómo se calcula? (Regla RN-03)</strong><br/><br/>
+<strong>1. Definición en lenguaje sencillo:</strong><br/>
+• <strong><code>MDP</code></strong> significa <strong>Millones de Pesos</strong> (<code>1 MDP = $1,000,000 MXN</code>).<br/>
+• El <strong>Costo Total en MDP</strong> mide el <strong>volumen financiero agregado</strong> de todos los siniestros ocurridos en una entidad. A nivel nacional (promedio anual 2020–2024), el costo total es de <strong>$${formatNumber(natMdpAll, 2)} MDP</strong>.<br/><br/>
+<strong>2. Identidad Actuarial Oficial:</strong>
+<div class="formula-box">
+  Costo Total (MDP) = [Exposición asegurada × Frecuencia de reclamos × Severidad en MXN] / 1,000,000
+</div><br/>
+• Mientras la <strong>severidad</strong> mide el costo unitario de <em>un</em> siniestro (<code>$ MXN</code>), el <strong>Costo Total (<code>MDP</code>)</strong> refleja la masa monetaria completa impulsada por el tamaño poblacional y vehicular del estado.<br/><br/>
+<strong>3. Ejemplo verificable en el reporte (2024):</strong><br/>
+• <strong>Estado de México</strong> ocupa el <strong>1.º lugar nacional en Costo Total</strong> con <strong>$${formatNumber(edomexMdp2024, 2)} MDP</strong> (aunque su severidad unitaria es Media: <code>$8,105.33 MXN</code>), seguido por <strong>Ciudad de México</strong> con <strong>$${formatNumber(cdmxMdp2024, 2)} MDP</strong>.<br/>
+• <strong>Aclaración metodológica:</strong> El parque vehicular registrado (<code>INEGI VMRC</code>) mide la escala automotriz macro del estado, pero <strong>no equivale a la exposición asegurada</strong> (pólizas vigentes).`;
+    }
+
+    // 7. Explicación específica de Frecuencia y Exposición Asegurada
+    if (
+      (normQ.includes('frecuencia') || normQ.includes('exposicion') || normQ.includes('parque vehicular') || normQ.includes('inegi vmrc')) &&
+      !isFullCatalogReq
+    ) {
+      return `🤖 <strong>¿Qué son la Frecuencia y la Exposición Asegurada? (Regla RN-03 y Supuesto H4)</strong><br/><br/>
+<strong>1. Definición Actuarial:</strong><br/>
+• <strong>Exposición Asegurada:</strong> Número de vehículos-año cubiertos por una póliza de seguro vigente.<br/>
+• <strong>Frecuencia de Reclamos:</strong> Proporción o tasa de vehículos asegurados que sufren un siniestro en un año:
+<div class="formula-box">
+  Frecuencia = Siniestros Ocurridos / Exposición Asegurada (Años-Vehículo)
+</div><br/>
+<strong>2. Cómo operan en este conjunto de datos (H4):</strong><br/>
+• En este estudio macroestatal, el denominador de siniestros se estima de forma fija por entidad aplicando <strong>35 % de exposición × 30 % de frecuencia</strong> sobre la <strong>población del Censo INEGI 2020</strong> (<code>0.105 × población_2020</code>).<br/>
+• <strong>Distinción crítica:</strong> Las cifras de <strong>Parque Vehicular Registrado (<code>INEGI VMRC</code>)</strong> muestran el total de automóviles en circulación en el estado, pero <strong>no equivalen a la exposición asegurada</strong>.`;
+    }
+
+    // 8. Explicación específica de Correlación (r) y Coeficiente de Determinación (R²)
+    if (
+      (normQ.includes('r2') || normQ.includes('r cuadrada') || normQ.includes('correlacion') || normQ.includes('pearson')) &&
+      !isFullCatalogReq
+    ) {
+      const rVal = data && data.scatter_stats ? data.scatter_stats.r_pearson : 0.8488;
+      const r2Pct = data && data.scatter_stats ? data.scatter_stats.r2_score * 100.0 : 72.05;
+      return `🤖 <strong>¿Qué miden la Correlación (<code>r</code>) y el Coeficiente <code>R²</code> en este modelo?</strong><br/><br/>
+<strong>1. Definición Estadística:</strong><br/>
+• <strong>Correlación de Pearson (<code>r = +${formatNumber(rVal, 4, false)}</code>):</strong> Mide la fuerza y dirección de la asociación lineal entre el precio comercial promedio del vehículo (<code>Mercado Libre</code>) y la severidad estatal (Promedio 2020–2024).<br/>
+• <strong>Coeficiente de Determinación (<code>R² = ${formatNumber(r2Pct, 2)} %</code>):</strong> Indica que el <strong>${formatNumber(r2Pct, 2)} %</strong> de la variación interestatal de la severidad se explica linealmente por las diferencias en el valor comercial del parque vehicular (<code>R² = r²</code>).<br/><br/>
+<strong>2. Guardrail Actuarial (Correlación ≠ Causalidad):</strong><br/>
+• Esta relación describe una <strong>asociación estadística agregada</strong>, pero <strong>no implica causalidad directa</strong> ni demuestra que el precio del auto sea la única causa de la severidad.`;
+    }
+
+    // 9. Catálogo General de Reglas de Negocio
     return `🤖 <strong>Catálogo de Reglas de Negocio Actuariales (<code>config/actuarial_rules.json</code>)</strong><br/><br/>
 <strong>• RN-01 · Referencia Nacional e Índice Relativo (pts):</strong><br/>
 <code>Media_ref(Y) = Σ Severidad_e(Y) / n(Y)</code> (Media de severidad de las entidades con dato; promedio 2020–2024: <strong>$${formatNumber(natAvgAll, 2)} MXN</strong>, n = 32).<br/>
@@ -1206,8 +1713,10 @@ Redondeo <code>ROUND_HALF_UP</code> desde la representación decimal más corta 
     computeNationalReferenceForYear,
     computeCompetitionRanksForYear,
     computeExecutiveSummary,
+    computeRecommendationsAndOpportunities,
     buildHumanNarrativeHtml,
     formatExecutiveSummaryHtml,
+    formatRecommendationsHtml,
     formatBusinessRulesHtml
   };
 });

@@ -37,11 +37,12 @@ def load_actuarial_rules(rules_path: str = DEFAULT_RULES_PATH) -> Dict[str, Any]
 def normalize_text(text: str) -> str:
     """
     Normaliza texto de forma idéntica a JavaScript:
-    NFD -> eliminar marcas diacríticas -> minúsculas -> sustituir puntuación por espacio -> colapsar espacios -> trim.
+    NFD -> eliminar marcas diacríticas -> superíndices (²->2, ³->3) -> minúsculas -> sustituir puntuación por espacio -> colapsar espacios -> trim.
     """
     if text is None:
         return ""
-    decomposed = unicodedata.normalize('NFD', str(text))
+    s = str(text).replace("²", "2").replace("³", "3")
+    decomposed = unicodedata.normalize('NFD', s)
     without_accents = ''.join(c for c in decomposed if unicodedata.category(c) != 'Mn')
     lowered = without_accents.lower()
     no_punct = re.sub(r'[^\w\s]', ' ', lowered)
@@ -350,8 +351,19 @@ class ActuarialCatalog:
 
     STOP_WORDS = {
         "son", "sin", "ver", "clima", "mas", "los", "las", "del", "con", "que",
-        "para", "por", "cuanto", "cuales", "como", "dame", "presumen", "ejecutivo",
-        "ejecutiva", "nacional", "reporte", "informe", "resumen", "sintesis"
+        "para", "por", "cuanto", "cuales", "cual", "como", "dame", "presumen", "ejecutivo",
+        "ejecutiva", "nacional", "reporte", "informe", "resumen", "sintesis",
+        "severidad", "severidades", "crecimiento", "crecimoento", "crecimento", "acumulado",
+        "indice", "relativo", "promedio", "estado", "estados", "entidad", "entidades",
+        "mayor", "menor", "ranking", "rankings", "costo", "costos", "total", "totales",
+        "siniestro", "siniestros", "vehiculo", "vehiculos", "autos", "riesgo", "categoria",
+        "comparar", "compara", "comparativa", "frecuencia", "exposicion", "correlacion",
+        "variables", "tendencia", "evolucion", "historico", "anual", "periodo", "millones",
+        "paa", "recomendacion", "recomendaciones", "recomienda", "recomiendas", "recomendar",
+        "recomednar", "recomedaciones", "preventiva", "preventivas", "preventivo", "prevencion",
+        "oportunidad", "oportunidades", "oputinidades", "oportunidaes", "acciones", "accion",
+        "identificar", "identifica", "estrategia", "estrategias", "mitigar", "mitigacion",
+        "sugerencia", "sugerencias", "medidas"
     }
 
     def __init__(self, canonical_states: List[str]):
@@ -377,10 +389,16 @@ class ActuarialCatalog:
             return ("", [])
         raw_chars: List[Tuple[str, int]] = []
         for idx, ch in enumerate(str(query)):
+            if ch == "²":
+                raw_chars.append(('2', idx))
+                continue
+            if ch == "³":
+                raw_chars.append(('3', idx))
+                continue
             decomp = unicodedata.normalize('NFD', ch)
             base = ''.join(c for c in decomp if unicodedata.category(c) != 'Mn').lower()
             for bc in base:
-                if re.match(r'\w', bc):
+                if re.match(r'[a-z0-9_]', bc):
                     raw_chars.append((bc, idx))
                 else:
                     raw_chars.append((' ', idx))
@@ -448,8 +466,8 @@ class ActuarialCatalog:
         if not accepted_spans:
             for m in re.finditer(r'\b\w+\b', norm_q):
                 w = m.group(0)
-                if w not in self.STOP_WORDS and len(w) >= 4:
-                    close = difflib.get_close_matches(w, list(self.norm_canonical.keys()), n=1, cutoff=0.78)
+                if w not in self.STOP_WORDS and len(w) >= 4 and not w.isdigit():
+                    close = difflib.get_close_matches(w, list(self.norm_canonical.keys()), n=1, cutoff=0.75)
                     if close:
                         real = self.norm_canonical[close[0]]
                         accepted_spans.append((m.start(), m.end(), real, _get_surface(m.start(), m.end())))
@@ -876,6 +894,101 @@ class ActuarialOperationsEngine:
             "selection_summary": selection_summary,
             "all_severidad_missing": all_sev_missing,
             "all_mdp_missing": all_mdp_missing
+        }
+
+    def compute_recommendations_and_opportunities(self, state_names: List[str], target_year: int) -> Dict[str, Any]:
+        """
+        Calcula métricas diagnósticas, benchmarks nacionales y hallazgos basados en datos reales
+        para sustentar recomendaciones técnicas, acciones preventivas e identificación de oportunidades.
+        """
+        exec_summary = self.compute_executive_summary(state_names, target_year) if state_names else None
+        yr_str = str(target_year)
+
+        media_ref_2020, _ = self.compute_national_reference_for_year("2020")
+        media_ref_2024, _ = self.compute_national_reference_for_year("2024")
+        nat_cagr_acum = ((media_ref_2024 - media_ref_2020) / media_ref_2020) * 100.0 if (media_ref_2020 and media_ref_2024) else 0.0
+        nat_cagr_anual = (math.pow(1.0 + nat_cagr_acum / 100.0, 0.25) - 1.0) * 100.0
+
+        n_est = len(self.estados_list) if self.estados_list else 1
+        nat_precio_auto_k = sum(float(s["precio_promedio_auto_ml_k_mxn"]) for s in self.estados_list) / n_est
+        nat_motorizacion = sum(float(s["autos_por_1000_hab"]) for s in self.estados_list) / n_est
+
+        total_mdp_yr = sum(
+            float(s["yearly_mdp"][yr_str])
+            for s in self.estados_list
+            if self.is_valid_mdp(s.get("yearly_mdp", {}).get(yr_str))
+        )
+
+        r_val = float(self.scatter_stats["r_pearson"])
+        r2_pct = float(self.scatter_stats["r2_score"]) * 100.0
+
+        enriched_rows = []
+        if exec_summary:
+            for r in exec_summary["rows"]:
+                st = self.estados_dict[r["entidad"]]
+                cagr_acum = float(st["cagr_2020_2024_pct"])
+                cagr_anual = (math.pow(1.0 + cagr_acum / 100.0, 0.25) - 1.0) * 100.0
+                precio_k = float(st["precio_promedio_auto_ml_k_mxn"])
+                motor = float(st["autos_por_1000_hab"])
+                costo_auto = float(st["costo_por_auto_registrado"])
+                sev_prom = float(st["severidad_promedio"])
+                cat_per = display_category_label(st["categoria_severidad"])
+                pct_mdp_yr = (r["costo_mdp"] / total_mdp_yr) * 100.0 if (r["costo_mdp"] is not None and total_mdp_yr > 0) else None
+
+                row_copy = dict(r)
+                row_copy.update({
+                    "severidad_promedio": sev_prom,
+                    "severidad_promedio_fmt": format_number(sev_prom, 2),
+                    "categoria_periodo": cat_per,
+                    "cagr_acumulado": cagr_acum,
+                    "cagr_acumulado_fmt": f"+{format_number(cagr_acum, 1)} %",
+                    "cagr_anual": cagr_anual,
+                    "cagr_anual_fmt": f"+{format_number(cagr_anual, 1)} %",
+                    "precio_auto_k": precio_k,
+                    "precio_auto_k_fmt": format_number(precio_k, 0),
+                    "autos_por_1000_hab": motor,
+                    "autos_por_1000_hab_fmt": format_number(motor, 1),
+                    "costo_por_auto": costo_auto,
+                    "costo_por_auto_fmt": format_number(costo_auto, 2),
+                    "pct_costo_nacional_yr": pct_mdp_yr,
+                    "pct_costo_nacional_yr_fmt": format_number(pct_mdp_yr, 1) if pct_mdp_yr is not None else "no calculable"
+                })
+                enriched_rows.append(row_copy)
+
+        return {
+            "scope": "state" if state_names else "national",
+            "target_year": target_year,
+            "national_reference": exec_summary["national_reference"] if exec_summary else {
+                "method": "simple_mean_entities_with_data",
+                "label": "Media de severidad de las entidades con dato",
+                "value": media_ref_2024 if target_year == 2024 else self.compute_national_reference_for_year(yr_str)[0],
+                "value_fmt": format_number(media_ref_2024 if target_year == 2024 else (self.compute_national_reference_for_year(yr_str)[0] or 0.0), 2),
+                "n": len(self.estados_list)
+            },
+            "rows": enriched_rows,
+            "selection_summary": exec_summary["selection_summary"] if exec_summary else None,
+            "national_benchmarks": {
+                "nat_cagr_acum": nat_cagr_acum,
+                "nat_cagr_acum_fmt": f"+{format_number(nat_cagr_acum, 1)} %",
+                "nat_cagr_anual": nat_cagr_anual,
+                "nat_cagr_anual_fmt": f"+{format_number(nat_cagr_anual, 1)} %",
+                "nat_precio_auto_k": nat_precio_auto_k,
+                "nat_precio_auto_k_fmt": format_number(nat_precio_auto_k, 1),
+                "nat_motorizacion": nat_motorizacion,
+                "nat_motorizacion_fmt": format_number(nat_motorizacion, 1),
+                "total_mdp_yr": total_mdp_yr,
+                "total_mdp_yr_fmt": format_number(total_mdp_yr, 2),
+                "r_pearson": r_val,
+                "r_pearson_fmt": format_number(r_val, 4, False),
+                "r2_pct": r2_pct,
+                "r2_pct_fmt": format_number(r2_pct, 2)
+            },
+            "portfolio_context": None if state_names else {
+                "findings": self.compute_three_key_findings(),
+                "pareto": self.compute_pareto_breakdown(5),
+                "top_sev": self.compute_severity_rankings(5),
+                "growth": self.compute_growth_rankings(3)
+            }
         }
 
     def compute_severity_rankings(self, top_n: int = 5) -> List[Dict[str, Any]]:

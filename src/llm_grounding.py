@@ -18,6 +18,7 @@ from actuarial_core import (
     ActuarialOperationsEngine,
     normalize_text,
     format_number,
+    display_category_label,
     load_actuarial_rules
 )
 
@@ -176,14 +177,19 @@ class ActuarialOutputVerifier:
                 continue
             unit_a = m_a.get("unit", "")
             tol_a = 0.015 if unit_a in ("MXN", "MDP") else (0.11 if unit_a in ("pts", "%") else 0.001)
-            slot_keys_a = [normalize_text(k) for k in m_a.get("slot_keywords", []) if normalize_text(k)]
-            if not slot_keys_a:
+            raw_keys_a = [k.strip().lower() for k in m_a.get("slot_keywords", []) if k.strip()]
+            if not raw_keys_a:
                 continue
 
             for raw_clause in raw_lines:
                 clause = normalize_text(raw_clause)
-                # Si la línea tiene un marcador explícito de m_a
-                if any(k in clause for k in slot_keys_a):
+                raw_lower = raw_clause.lower()
+                # Si la línea tiene un marcador explícito de m_a (literal si incluye '|' o normalizado)
+                matched_a = any(
+                    (rk in raw_lower if "|" in rk else normalize_text(rk) in clause)
+                    for rk in raw_keys_a
+                )
+                if matched_a:
                     nums_in_clause = [
                         float(n.replace(',', ''))
                         for n in re.findall(r'(?:\$\s*)?([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?|[0-9]+\.[0-9]+)', raw_clause)
@@ -200,11 +206,13 @@ class ActuarialOutputVerifier:
                             val_b = float(m_b["value"])
                             if abs(val_a - val_b) <= tol_a:
                                 continue
-                            slot_keys_b = [normalize_text(k) for k in m_b.get("slot_keywords", []) if normalize_text(k)]
-                            if not slot_keys_b:
-                                continue
+                            raw_keys_b = [k.strip().lower() for k in m_b.get("slot_keywords", []) if k.strip()]
+                            matched_b = any(
+                                (rkb in raw_lower if "|" in rkb else normalize_text(rkb) in clause)
+                                for rkb in raw_keys_b
+                            )
                             # Si la línea no menciona la etiqueta de B pero contiene el número exacto de B en el lugar de A
-                            if not any(kb in clause for kb in slot_keys_b):
+                            if not matched_b:
                                 if any(abs(x - val_b) <= tol_a for x in nums_in_clause):
                                     raise LabelSwapDetectedError(
                                         f"LABEL_SWAP_ERROR (S0): El slot '{m_a['metric_id']}' ({m_a.get('entity')}) "
@@ -233,6 +241,7 @@ class ActuarialQueryParser:
     VALID_INTENTS = {
         "executive_multistate_summary",
         "executive_single_state_summary",
+        "recommendations_actions",
         "clarification_year",
         "temporal_out_of_range",
         "insufficient_data_kpi",
@@ -295,6 +304,9 @@ class ActuarialQueryParser:
         phrases = [
             "glosario", "definicion", "que es mdp", "volumen de costo total mdp",
             "explicar volumen de costo", "explicar mdp", "significa mdp", "que significa",
+            "que es la severidad", "que es severidad", "que es la frecuencia", "que es frecuencia",
+            "que es el indice", "que es indice", "que es el costo total", "que es costo total",
+            "que es r2", "que es r cuadrada", "que es cagr",
             "como se calcula", "como calculan", "como se obtiene", "como se clasifica",
             "como se define", "cual es la formula", "cual es la regla", "regla de negocio",
             "reglas de negocio", "business rule", "business rules", "umbrales de", "umbral de"
@@ -316,6 +328,18 @@ class ActuarialQueryParser:
         if re.search(r'\bfrente a\b|\bdiferencia entre\b|\bcuanto difieren\b', norm_q):
             return True
         return False
+
+    @classmethod
+    def _is_recommendations_family(cls, norm_q: str) -> bool:
+        if re.search(r'\b(recomend\w*|recomed\w*|sugerenc\w*|sugier\w*|preventiv\w*|prevenci\w*|prevensi\w*|oportunidad\w*|oputinidad\w*|mitig\w*|estrategi\w*)\b', norm_q):
+            return True
+        phrases = [
+            "accion preventiva", "acciones preventivas", "medida preventiva", "medidas preventivas",
+            "plan de accion", "planes de accion", "areas de oportunidad", "area de oportunidad",
+            "identificar oportunidad", "identificar oportunidades", "identifica oportunidades",
+            "como reducir", "como controlar", "como bajar", "que acciones", "que medidas"
+        ]
+        return any(p in norm_q for p in phrases)
 
     def parse_to_structured_json(self, user_query: str) -> Dict[str, Any]:
         """Convierte la consulta del usuario a un JSON estructurado intermedio (IR) según §1 y §8."""
@@ -394,8 +418,80 @@ class ActuarialQueryParser:
             }
 
         effective_states = self.memory.get_effective_states(extracted_states, user_query)
+        is_recommendations = self._is_recommendations_family(norm_q)
         is_summary = self._is_summary_family(norm_q, has_entities=(len(effective_states) > 0))
         is_comparison = self._is_comparison_family(norm_q)
+
+        # Recomendaciones, acciones preventivas e identificación de oportunidades basadas en datos reales
+        if is_recommendations:
+            rec_states = list(effective_states)
+            if not rec_states and not words.intersection({"nacional", "general", "pais", "todos", "todas", "reporte", "tablero"}) and self.memory.confirmed_states:
+                rec_states = list(self.memory.confirmed_states)
+
+            yr_res = self.memory.resolve_year_for_summary(user_query, has_explicit_states=(len(extracted_states) > 0))
+            if yr_res["status"] == "temporal_out_of_range":
+                return {
+                    "intent": "temporal_out_of_range",
+                    "error_message": yr_res["error_message"],
+                    "states": [],
+                    "states_raw": states_raw,
+                    "duplicate_mentions": duplicate_mentions,
+                    "target_year": None,
+                    "year_source": None,
+                    "metrics": [],
+                    "national_reference": {"method": "simple_mean_entities_with_data"},
+                    "ranking_scope": [],
+                    "interpretation_notes": [],
+                    "insufficient_entities": False,
+                    "confidence": 1.0,
+                    "query_text": user_query
+                }
+            if yr_res["status"] == "clarification_year":
+                return {
+                    "intent": "clarification_year",
+                    "error_message": yr_res["error_message"],
+                    "states": rec_states,
+                    "states_raw": states_raw,
+                    "duplicate_mentions": duplicate_mentions,
+                    "target_year": None,
+                    "year_source": None,
+                    "metrics": [],
+                    "national_reference": {"method": "simple_mean_entities_with_data"},
+                    "ranking_scope": [],
+                    "interpretation_notes": [],
+                    "insufficient_entities": False,
+                    "confidence": 1.0,
+                    "query_text": user_query
+                }
+
+            target_year = yr_res["target_year"]
+            year_source = yr_res["year_source"]
+            if year_source == "default" and rec_states and rec_states == self.memory.confirmed_states and self.memory.confirmed_year in ConversationMemoryManager.VALID_YEARS:
+                target_year = self.memory.confirmed_year
+                year_source = "memory"
+
+            notes_rec: List[str] = []
+            if year_source == "default":
+                notes_rec.append("No indicaste año; uso 2024, último año disponible.")
+            for st_canon, raw_list in mentions_by_state.items():
+                if len(raw_list) > 1:
+                    notes_rec.append(f"{' y '.join(raw_list)} corresponden a la misma entidad ({st_canon}).")
+
+            return {
+                "intent": "recommendations_actions",
+                "states": rec_states,
+                "states_raw": states_raw,
+                "duplicate_mentions": duplicate_mentions,
+                "target_year": target_year,
+                "year_source": year_source,
+                "metrics": ["severidad", "costo_mdp", "indice_relativo", "categoria", "variacion_2020", "ranking"],
+                "national_reference": {"method": "simple_mean_entities_with_data"},
+                "ranking_scope": ["national", "selection"] if len(rec_states) >= 2 else (["national"] if len(rec_states) == 1 else []),
+                "interpretation_notes": notes_rec,
+                "insufficient_entities": False,
+                "confidence": 0.98,
+                "query_text": user_query
+            }
 
         # Si pertenece a la familia de resumen y hay al menos 1 entidad (Prioridades 2, 3, 4 y 5)
         if is_summary and len(effective_states) >= 1:
@@ -474,8 +570,8 @@ class ActuarialQueryParser:
             if y not in unique_years:
                 unique_years.append(y)
 
-        # Ignorar el rango literal "2020 2024" cuando viene precedido de indicadores de periodo/CAGR
-        is_period_range = bool(words.intersection({"promedio", "periodo", "historico", "cagr", "crecimiento", "tendencia", "acumulado"})) and unique_years == [2020, 2024]
+        # Ignorar el rango literal "2020 2024" cuando viene acompañado de promedio/periodo/historico/cagr/crecimiento/tendencia
+        is_period_range = bool(words.intersection({"promedio", "periodo", "historico", "cagr", "crecimiento", "tendencia"})) and unique_years == [2020, 2024]
 
         if not is_period_range:
             out_of_range = [y for y in unique_years if y not in ConversationMemoryManager.VALID_YEARS]
@@ -545,11 +641,11 @@ class ActuarialQueryParser:
             intent = "regression_drivers"
         elif any(re.search(rf'\b{w}\b', norm_q) for w in ["pareto", "concentracion"]) or "volumen agregado" in norm_q:
             intent = "pareto_breakdown"
-        elif any(re.search(rf'\b{w}\b', norm_q) for w in ["crecimiento", "cagr", "incremento", "duplicaron", "tendencia", "acumulado"]):
+        elif any(re.search(rf'\b{w}\b', norm_q) for w in ["crecimiento", "cagr", "incremento", "duplicaron", "tendencia", "acumulado"]) or re.search(r'\bcrecim\w*\b', norm_q):
             intent = "growth_cagr"
-        elif any(re.search(rf'\b{w}\b', norm_q) for w in ["variable", "variables", "impacto", "factor", "correlacion", "afectan", "precio"]) or "explicar r2" in norm_q:
+        elif any(re.search(rf'\b{w}\b', norm_q) for w in ["variable", "variables", "impacto", "factor", "correlacion", "afectan", "precio", "scatter", "dispersion"]) or "explicar r2" in norm_q or "72 05" in norm_q or "0 7205" in norm_q:
             intent = "regression_drivers"
-        elif (any(re.search(rf'\b{w}\b', norm_q) for w in ["top", "ranking"]) or any(p in norm_q for p in ["mayor severidad", "mas alto", "mas severos", "cuales son"])) and len(effective_states) == 0:
+        elif (any(re.search(rf'\b{w}\b', norm_q) for w in ["top", "ranking", "mayor", "menor", "lider"]) or any(p in norm_q for p in ["mayor severidad", "mayor indice", "mas alto", "mas bajo", "mas caro", "mas severos", "cuales son", "primer lugar"])) and len(effective_states) == 0:
             intent = "top_rankings"
         elif is_comparison or len(effective_states) >= 2:
             intent = "multi_state_comparison"
@@ -813,6 +909,149 @@ class GroundedActuarialAssistant:
 
         return "\n".join(lines)
 
+    @staticmethod
+    def format_recommendations_response(rec_data: Dict[str, Any], structured_json: Dict[str, Any]) -> str:
+        """
+        Formatea recomendaciones actuariales, acciones preventivas e identificación de oportunidades
+        basadas estrictamente en los datos reales de las entidades o de la cartera nacional.
+        """
+        yr = rec_data["target_year"]
+        rows = rec_data["rows"]
+        ref = rec_data["national_reference"]
+        bench = rec_data["national_benchmarks"]
+        notes = structured_json.get("interpretation_notes", [])
+
+        if rec_data["scope"] == "national" or not rows:
+            ctx = rec_data["portfolio_context"]
+            pareto = ctx["pareto"]
+            top_sev = ctx["top_sev"]
+            growth = ctx["growth"]
+            findings = ctx["findings"]
+            lines = [f"🤖 **Recomendaciones, Acciones Preventivas y Oportunidades — Cartera Nacional ({yr})**"]
+            for note in notes:
+                lines.append(f"ℹ️ *{note}*")
+            lines.append("\n**1. Diagnóstico Cuantitativo Base (Evidencia del Reporte)**")
+            lines.append(
+                f"• **Concentración Financiera (Pareto)**: El Top 5 concentra el **{format_number(pareto['pct_k'], 1)} %** del costo nacional "
+                f"(**${format_number(pareto['sum_k_mdp'], 2)} MDP** de **${format_number(pareto['total_national_mdp'], 2)} MDP** anuales), "
+                f"liderado por **{pareto['top_states'][0]['entidad']} (${format_number(pareto['top_states'][0]['mdp'], 2)} MDP)** y **{pareto['top_states'][1]['entidad']} (${format_number(pareto['top_states'][1]['mdp'], 2)} MDP)**."
+            )
+            lines.append(
+                f"• **Severidad Crítica y Dinámica 2020–2024**: **{top_sev[0]['entidad']}** encabeza la severidad promedio con **${format_number(top_sev[0]['severidad'], 2)} MXN** "
+                f"(índice **{format_number(top_sev[0]['indice'], 1)} pts**), mientras que **{growth['leaders'][0]['entidad']}** registra el mayor crecimiento acumulado con **+{format_number(growth['leaders'][0]['cagr_acumulado'], 1)} %** (CAGR **+{format_number(growth['leaders'][0]['cagr_anual'], 1)} %** anual)."
+            )
+            lines.append("\n**2. Acciones Preventivas y de Mitigación**")
+            lines.append(
+                f"• **Control de talleres y valuación en polos de Severidad Crítica (≥ $11,000.00 MXN)**: Establecer convenios de tabuladores cerrados de mano de obra y compra consolidada de autopartes en **{top_sev[0]['entidad']} (${format_number(top_sev[0]['severidad'], 2)} MXN)**, **{top_sev[1]['entidad']} (${format_number(top_sev[1]['severidad'], 2)} MXN)** y **{top_sev[2]['entidad']} (${format_number(top_sev[2]['severidad'], 2)} MXN)**, considerando la asociación con el precio comercial vehicular (**r = +{bench['r_pearson_fmt']}**, **R² = {bench['r2_pct_fmt']} %**)."
+            )
+            lines.append(
+                f"• **Prevención vial focalizada en el Top 5 Pareto ({format_number(pareto['pct_k'], 1)} % del volumen)**: Desplegar telemetría en flotillas y programas de prevención en corredores urbanos de **{', '.join(s['entidad'] for s in pareto['top_states'])}**."
+            )
+            lines.append(
+                f"• **Vigilancia de inflación siniestral (2020–2024)**: Auditar suficiencia de sumas aseguradas en entidades con aceleración superior a la media nacional (**{bench['nat_cagr_acum_fmt']}**), encabezadas por **{growth['leaders'][0]['entidad']} (+{format_number(growth['leaders'][0]['cagr_acumulado'], 1)} %)** y **{growth['leaders'][1]['entidad']} (+{format_number(growth['leaders'][1]['cagr_acumulado'], 1)} %)**."
+            )
+            lines.append("\n**3. Identificación de Oportunidades Basadas en los Datos**")
+            lines.append(
+                f"• **Crecimiento selectivo en plazas de Severidad Baja (< $7,500.00 MXN)**: Impulsar penetración comercial en mercados con severidad contenida, como **{findings['min_state']['entidad']} (${format_number(findings['min_state']['severidad'], 2)} MXN, índice {format_number(findings['min_state']['idx'], 1)} pts)**, manteniendo disciplina de suscripción."
+            )
+            lines.append(
+                "• **Productos modulares para el parque en circulación (INEGI VMRC)**: Desarrollar coberturas escalonadas (Responsabilidad Civil ampliada y deducible flexible) para capturar parque registrado no asegurado sin presionar la severidad media."
+            )
+            lines.append("\n**4. Alcance y Guardrail Metodológico**")
+            lines.append("- Recomendaciones derivadas de los indicadores macroestatales de `data.json` (RN-01 a RN-06). La asociación estadística con el precio vehicular no implica causalidad directa única.")
+            return "\n".join(lines)
+
+        state_titles = ", ".join(r["entidad"] for r in rows)
+        lines = [f"🤖 **Recomendaciones, Acciones Preventivas y Oportunidades — {state_titles} ({yr})**"]
+        for note in notes:
+            lines.append(f"ℹ️ *{note}*")
+
+        lines.append(f"\n**1. Diagnóstico Cuantitativo Base (`data.json` · {yr})**")
+        for r in rows:
+            diff_vs_100 = abs(r["indice"] - 100.0) if r["indice"] is not None else 0.0
+            dir_str = "por encima" if (r["indice"] is not None and r["indice"] >= 100.0) else "por debajo"
+            cat_shift = ""
+            if r["categoria"] != r["categoria_periodo"]:
+                cat_shift = f" *(escaló de categoría **{r['categoria_periodo']}** en el promedio 2020–2024 [${r['severidad_promedio_fmt']} MXN] a **{r['categoria']}** en {yr})*"
+            lines.append(
+                f"• **{r['entidad']}**: Severidad de **${r['severidad_fmt']} MXN** por siniestro (**{r['rank_nacional_severidad']}.º lugar nacional de {r['n_nacional_severidad']}**), "
+                f"clasificada en nivel **{r['categoria']}**{cat_shift} con un Índice Relativo de **{r['indice_fmt']} pts** "
+                f"(**{format_number(diff_vs_100, 1)} % {dir_str}** de la media nacional de **${ref['value_fmt']} MXN**, n = {ref['n']})."
+            )
+            lines.append(
+                f"  - **Volumen y Evolución (2020 → {yr})**: Acumula **${r['costo_mdp_fmt']} MDP** (**{r['rank_nacional_mdp']}.º de {r['n_nacional_mdp']}**, **{r['pct_costo_nacional_yr_fmt']} %** del costo nacional en {yr}). "
+                f"Frente a 2020, su severidad varió **{r['var_severidad_fmt']}** (CAGR 2020–2024: **{r['cagr_anual_fmt']}** anual) y su índice relativo cambió en **{r['delta_indice_fmt']}** (de **{r['indice_2020_fmt']}** a **{r['indice_fmt']} pts**)."
+            )
+            lines.append(
+                f"  - **Factores del Parque Vehicular**: Precio comercial medio del vehículo de **${r['precio_auto_k_fmt']}k MXN** (media estatal: **${bench['nat_precio_auto_k_fmt']}k MXN**; asociación nacional **r = +{bench['r_pearson_fmt']}**, **R² = {bench['r2_pct_fmt']} %**) "
+                f"y tasa de motorización de **{r['autos_por_1000_hab_fmt']} autos / 1,000 hab.** (**{r['automoviles_registrados']:,d} autos** registrados INEGI VMRC vs. **{bench['nat_motorizacion_fmt']}** de media estatal)."
+            )
+
+        lines.append("\n**2. Acciones Preventivas y de Mitigación de Severidad**")
+        for r in rows:
+            if r["categoria"] == "Crítica" or (r["indice"] is not None and r["indice"] >= 110.0):
+                lines.append(
+                    f"• **Control de costos de reparación y talleres en {r['entidad']} (Severidad {r['categoria']}: ${r['severidad_fmt']} MXN | Índice: {r['indice_fmt']} pts)**: "
+                    f"Dado que rebasa el umbral crítico de **$11,000.00 MXN** y registra un valor comercial vehicular de **${r['precio_auto_k_fmt']}k MXN**, "
+                    f"implementar **convenios de tabuladores cerrados de mano de obra, compra consolidada de refacciones y auditoría técnica obligatoria** en reclamos mayores a **$11,000.00 MXN**, además de revisar umbrales de pérdida total."
+                )
+            elif r["categoria"] == "Media":
+                gap_crit = max(0.0, 11000.0 - (r["severidad"] or 0.0))
+                lines.append(
+                    f"• **Contención preventiva de estrato en {r['entidad']} (Severidad Media: ${r['severidad_fmt']} MXN | Brecha a Crítica: ${format_number(gap_crit, 2)} MXN)**: "
+                    f"Reforzar **direccionamiento a red de talleres preferentes y topes de valuación por orden de reparación** para evitar que la entidad rebase el umbral crítico de **$11,000.00 MXN**."
+                )
+            else:
+                lines.append(
+                    f"• **Preservación de severidad contenida en {r['entidad']} (Severidad Baja: ${r['severidad_fmt']} MXN | Índice: {r['indice_fmt']} pts)**: "
+                    f"Mantener acuerdos tarifarios con talleres locales y control de costos médicos/RC para conservar la severidad por debajo del límite de **$7,500.00 MXN**."
+                )
+
+            lines.append(
+                f"• **Prevención vial focalizada por densidad vehicular ({r['autos_por_1000_hab_fmt']} autos / 1,000 hab.) y volumen (${r['costo_mdp_fmt']} MDP)**: "
+                f"Desplegar **alertas preventivas en corredores urbanos, telemetría en flotillas y esquemas de deducible diferenciado** en las zonas que concentran los **${r['costo_mdp_fmt']} MDP** (**{r['rank_nacional_mdp']}.º lugar nacional**)."
+            )
+
+            if r["delta_indice_pts"] is not None and r["delta_indice_pts"] > 0:
+                lines.append(
+                    f"• **Ajuste por aceleración inflacionaria en {r['entidad']} ({r['var_severidad_fmt']} desde 2020 | Δ Índice: {r['delta_indice_fmt']})**: "
+                    f"Su severidad creció por encima de la media nacional (**{bench['nat_cagr_acum_fmt']}**), elevando su índice de **{r['indice_2020_fmt']}** a **{r['indice_fmt']} pts**. Se recomienda **actualización prioritaria de suficiencia tarifaria y sumas aseguradas**."
+                )
+            else:
+                lines.append(
+                    f"• **Vigilancia de inflación nominal en {r['entidad']} ({r['var_severidad_fmt']} desde 2020 | CAGR: {r['cagr_anual_fmt']} anual)**: "
+                    f"Aunque su índice relativo se moderó en **{r['delta_indice_fmt']}** (**{r['indice_2020_fmt']} → {r['indice_fmt']} pts**), el alza nominal acumulada llevó la severidad a **${r['severidad_fmt']} MXN**. Se recomienda **indexación preventiva de sumas aseguradas y monitoreo trimestral de autopartes**."
+                )
+
+        lines.append("\n**3. Identificación de Oportunidades Basadas en los Datos**")
+        for r in rows:
+            if r["delta_indice_pts"] is not None and r["delta_indice_pts"] <= 0:
+                lines.append(
+                    f"• **Oportunidad de retención y crecimiento selectivo por estabilización relativa ({r['delta_indice_fmt']} en índice 2020 → {yr})**: "
+                    f"**{r['entidad']}** creció a un ritmo menor que el promedio nacional (**{r['var_severidad_fmt']}** vs. **{bench['nat_cagr_acum_fmt']}** nacional), reduciendo su índice de **{r['indice_2020_fmt']}** a **{r['indice_fmt']} pts**. "
+                    f"Esto abre oportunidad para **fidelizar cartera sana y crecer selectivamente** en segmentos de riesgo controlado."
+                )
+            else:
+                lines.append(
+                    f"• **Oportunidad de re-segmentación técnica en {r['entidad']} ({r['delta_indice_fmt']} en índice 2020 → {yr})**: "
+                    f"Introducir productos con **deducible calibrado y taller multimarca certificado** para recuperar margen técnico frente al incremento relativo de severidad."
+                )
+
+            lines.append(
+                f"• **Oportunidad de penetración sobre el parque vehicular registrado ({r['automoviles_registrados']:,d} autos INEGI VMRC)**: "
+                f"Con una motorización de **{r['autos_por_1000_hab_fmt']} autos / 1,000 hab.** y un costo anual medio por auto registrado de **${r['costo_por_auto_fmt']} MXN** (promedio 2020–2024), "
+                f"diseñar **coberturas modulares (Responsabilidad Civil ampliada, pérdida total o deducible flexible)** para captar parque en circulación no asegurado sin presionar la severidad unitaria (**${r['severidad_fmt']} MXN**)."
+            )
+            lines.append(
+                f"• **Calibración de oferta según valor comercial regional (${r['precio_auto_k_fmt']}k MXN)**: "
+                f"Alinear paquetes de cobertura amplia y reparación al valor comercial promedio de **${r['precio_auto_k_fmt']}k MXN** en **{r['entidad']}**, optimizando la relación entre valor del activo y costo medio por reclamo."
+            )
+
+        lines.append("\n**4. Alcance y Guardrail Metodológico**")
+        lines.append("- Estas recomendaciones se derivan de los indicadores agregados verificados en `data.json` (RN-01 a RN-06).")
+        lines.append(f"- La asociación entre precio vehicular y severidad (**r = +{bench['r_pearson_fmt']}**, **R² = {bench['r2_pct_fmt']} %**) es orientativa y **no implica causalidad directa única**; decisiones de suscripción o tarifa a nivel póliza requieren cruzar con exposición asegurada y frecuencia observada.")
+        return "\n".join(lines)
+
     def format_business_rules_response(self, user_query: str) -> str:
         """
         Responde consultas sobre Reglas de Negocio (Business Rules), fórmulas matemáticas,
@@ -886,6 +1125,85 @@ class GroundedActuarialAssistant:
 
 **3. Alcance de Selección**:
 • Solo se calcula cuando se consultan `>= 2` entidades únicas. Para `1` sola entidad se omite ("1 de 1" no aporta información)."""
+
+        # 5. Explicación clara y pedagógica de Severidad (¿Qué es y cómo se calcula?)
+        is_full_catalog_req = any(w in norm_q for w in ["glosario", "catalogo", "todas las reglas"])
+        if "severidad" in norm_q and not is_full_catalog_req:
+            det_states = self.catalog.extract_states(user_query)
+            ex_state_name = det_states[0] if det_states else "Ciudad de Mexico"
+            ex_st = self.engine.estados_dict.get(ex_state_name, self.engine.estados_dict["Ciudad de Mexico"])
+            ex_sev_2024 = float(ex_st["yearly_severidad"]["2024"])
+            ex_mdp_2024 = float(ex_st["yearly_mdp"]["2024"])
+            ex_pob_2020 = int(ex_st["poblacion_2020"])
+            ex_claims = 0.35 * 0.30 * ex_pob_2020
+            ex_idx_2024 = (ex_sev_2024 / ref_2024) * 100.0 if ref_2024 else 0.0
+            ex_cat_2024 = display_category_label(ex_st["yearly_categoria"]["2024"])
+
+            return f"""🤖 **¿Qué es la Severidad y cómo se calcula? (Reglas RN-02 y RN-03)**:
+
+**1. ¿Qué es la Severidad? (En lenguaje sencillo)**:
+• La **severidad** es el **costo económico promedio de cada siniestro**; es decir, cuánto cuesta en promedio reparar o indemnizar **un solo accidente vehicular** (expresado en **`$ MXN por siniestro`**).
+• **Diferencia clave frente al Costo Total (`MDP`)**: La severidad mide qué tan caro es *cada choque individual*, mientras que el **Costo Total (`MDP`)** suma el dinero de *todos los siniestros ocurridos en el estado*. Un estado puede tener muchos choques pequeños (costo total alto, pero severidad baja) o pocos choques muy costosos (severidad alta).
+
+**2. ¿Cómo se calcula? (Fórmula Actuarial y del Modelo)**:
+• **Fórmula actuarial general**:
+  `Severidad ($ MXN) = Costo Total de Siniestros ($) / Número de Siniestros Ocurridos`
+• **Fórmula en este conjunto de datos (`RN-03`, supuesto `H4`)**:
+  `Severidad_e(Y) = [ Costo_Total_MDP_e(Y) × 1,000,000 ] / Siniestros_Estimados_e`
+  donde `Siniestros_Estimados_e = 35 % (exposición) × 30 % (frecuencia) × Población_2020_e`.
+
+**3. Ejemplo paso a paso con datos reales ({ex_state_name}, 2024)**:
+• **Paso 1 (Costo Total en 2024)**: **${format_number(ex_mdp_2024, 2)} MDP** (equivalente a **${format_number(ex_mdp_2024 * 1_000_000.0, 0)} MXN**).
+• **Paso 2 (Siniestros estimados)**: `35 % × 30 % × {ex_pob_2020:,d} habitantes` = **{format_number(ex_claims, 2)} siniestros**.
+• **Paso 3 (División)**: `${format_number(ex_mdp_2024 * 1_000_000.0, 0)} MXN / {format_number(ex_claims, 2)} siniestros` = **${format_number(ex_sev_2024, 2)} MXN por siniestro** (Categoría: **{ex_cat_2024}**, Índice Relativo: **{format_number(ex_idx_2024, 1)} pts** frente a la media nacional 2024 de **${format_number(ref_2024, 2)} MXN**, `n = {n_2024}`).
+
+**4. ¿Cómo se clasifica el nivel de severidad? (Semáforo `RN-02`)**:
+• 🔴 **Crítica**: `>= $11,000.00 MXN` por siniestro.
+• 🟡 **Media**: `$7,500.00 a < $11,000.00 MXN` por siniestro.
+• 🟢 **Baja**: `< $7,500.00 MXN` por siniestro."""
+
+        # 6. Explicación específica de Costo Total (MDP / Millones de Pesos)
+        if any(w in norm_q for w in ["mdp", "costo total", "millones de pesos", "volumen de costo"]) and not is_full_catalog_req:
+            edomex_mdp_2024 = float(self.engine.estados_dict["Estado de Mexico"]["yearly_mdp"]["2024"])
+            cdmx_mdp_2024 = float(self.engine.estados_dict["Ciudad de Mexico"]["yearly_mdp"]["2024"])
+            return f"""🤖 **¿Qué es el Costo Total (`MDP`) y cómo se calcula? (Regla RN-03)**:
+
+**1. Definición en lenguaje sencillo**:
+• **`MDP`** significa **Millones de Pesos** (`1 MDP = $1,000,000 MXN`).
+• El **Costo Total en MDP** mide el **volumen financiero agregado** de todos los siniestros ocurridos en una entidad durante el periodo. A nivel nacional (promedio anual 2020–2024), el costo total es de **${format_number(self.engine.total_national_mdp, 2)} MDP**.
+
+**2. Identidad Actuarial Oficial**:
+• `Costo Total (MDP) = [Exposición asegurada × Frecuencia de reclamos × Severidad en MXN] / 1,000,000`
+• Mientras la **severidad** mide el costo unitario de *un* siniestro (`$ MXN`), el **Costo Total (`MDP`)** refleja la masa monetaria completa impulsada por el tamaño poblacional y vehicular del estado.
+
+**3. Ejemplo verificable en el reporte (2024)**:
+• **Estado de México** ocupa el **1.º lugar nacional en Costo Total** con **${format_number(edomex_mdp_2024, 2)} MDP** (aunque su severidad unitaria es Media: `$8,105.33 MXN`), seguido por **Ciudad de México** con **${format_number(cdmx_mdp_2024, 2)} MDP**.
+• **Aclaración metodológica**: El parque vehicular registrado (`INEGI VMRC`) mide la escala automotriz macro del estado, pero **no equivale a la exposición asegurada** (pólizas vigentes)."""
+
+        # 7. Explicación específica de Frecuencia y Exposición Asegurada
+        if any(w in norm_q for w in ["frecuencia", "exposicion", "parque vehicular", "inegi vmrc"]) and not is_full_catalog_req:
+            return """🤖 **¿Qué son la Frecuencia y la Exposición Asegurada? (Regla RN-03 y Supuesto H4)**:
+
+**1. Definición Actuarial**:
+• **Exposición Asegurada**: Número de vehículos-año cubiertos por una póliza de seguro vigente.
+• **Frecuencia de Reclamos**: Proporción o tasa de vehículos asegurados que sufren un siniestro en un año (`Frecuencia = Siniestros Ocurridos / Exposición Asegurada`).
+
+**2. Cómo operan en este conjunto de datos (`H4`)**:
+• En este estudio macroestatal, el denominador de siniestros se estima de forma fija por entidad aplicando **35 % de exposición × 30 % de frecuencia** sobre la **población del Censo INEGI 2020** (`0.105 × población_2020`).
+• **Distinción crítica**: Las cifras de **Parque Vehicular Registrado (`INEGI VMRC`)** muestran el total de automóviles en circulación en el estado, pero **no equivalen a la exposición asegurada** (en México la penetración del seguro varía por entidad)."""
+
+        # 8. Explicación específica de Correlación (r) y Coeficiente de Determinación (R²)
+        if any(w in norm_q for w in ["r2", "r cuadrada", "correlacion", "pearson"]) and not is_full_catalog_req:
+            r_val = float(self.data["scatter_stats"]["r_pearson"])
+            r2_pct = float(self.data["scatter_stats"]["r2_score"]) * 100.0
+            return f"""🤖 **¿Qué miden la Correlación (`r`) y el Coeficiente `R²` en este modelo?**:
+
+**1. Definición Estadística**:
+• **Correlación de Pearson (`r = +{format_number(r_val, 4, False)}`)**: Mide la fuerza y dirección de la asociación lineal entre el precio comercial promedio del vehículo (`Mercado Libre`) y la severidad estatal (Promedio 2020–2024).
+• **Coeficiente de Determinación (`R² = {format_number(r2_pct, 2)} %`)**: Indica que el **{format_number(r2_pct, 2)} %** de la variación interestatal de la severidad se explica linealmente por las diferencias en el valor comercial del parque vehicular (`R² = r²`).
+
+**2. Guardrail Actuarial (Correlación ≠ Causalidad)**:
+• Esta relación describe una **asociación estadística agregada**, pero **no implica causalidad directa** ni demuestra que el precio del auto sea la única causa de la severidad (intervienen también mezcla de coberturas, robo total y costos locales de reparación)."""
 
         # 5. Catálogo Completo de Reglas de Negocio + Glosario Actuarial y Unidades
         return f"""🤖 **Catálogo de Reglas de Negocio (`config/actuarial_rules.json`) y Glosario Actuarial**:
@@ -1207,6 +1525,57 @@ Para mantener rigor metodológico sin alucinaciones, este asistente solo respond
             )
             return {"response": body + trace["footer"], "ir": structured_json, "structured_metrics": structured_metrics, "traceability": trace}
 
+        if intent == "recommendations_actions":
+            states = structured_json["states"]
+            target_year = structured_json["target_year"] or 2024
+            rec_data = self.engine.compute_recommendations_and_opportunities(states, target_year)
+            if states:
+                self.memory.update_confirmed_context(states, target_year, intent)
+            body = self.format_recommendations_response(rec_data, structured_json)
+            n_ref = rec_data["national_reference"]["n"]
+            for r in rec_data["rows"]:
+                if r.get("severidad") is not None:
+                    structured_metrics.append({
+                        "metric_id": "severidad_estatal",
+                        "entity": r["entidad"],
+                        "period": str(target_year),
+                        "value": float(r["severidad"]),
+                        "unit": "MXN",
+                        "filters": {"entidad": r["entidad"], "anio": str(target_year), "n": r["n_nacional_severidad"]},
+                        "operation_id": "compute_recommendations_and_opportunities:RN-01_RN-02",
+                        "slot_keywords": [f"{r['entidad']}: severidad de"]
+                    })
+                if r.get("indice") is not None:
+                    structured_metrics.append({
+                        "metric_id": "indice_relativo",
+                        "entity": r["entidad"],
+                        "period": str(target_year),
+                        "value": float(r["indice"]),
+                        "unit": "pts",
+                        "filters": {"entidad": r["entidad"], "anio": str(target_year), "n": n_ref},
+                        "operation_id": "compute_recommendations_and_opportunities:RN-01",
+                        "slot_keywords": []
+                    })
+                if r.get("costo_mdp") is not None:
+                    structured_metrics.append({
+                        "metric_id": "costo_mdp",
+                        "entity": r["entidad"],
+                        "period": str(target_year),
+                        "value": float(r["costo_mdp"]),
+                        "unit": "MDP",
+                        "filters": {"entidad": r["entidad"], "anio": str(target_year), "n": r["n_nacional_mdp"]},
+                        "operation_id": "compute_recommendations_and_opportunities:RN-03",
+                        "slot_keywords": []
+                    })
+            trace = self._build_traceability(
+                structured_json,
+                "compute_recommendations_and_opportunities",
+                ["RN-01", "RN-02", "RN-03", "RN-04", "RN-05", "RN-06"],
+                str(target_year),
+                n_ref
+            )
+            return {"response": body + trace["footer"], "ir": structured_json, "structured_metrics": structured_metrics, "traceability": trace}
+
         if intent == "three_findings":
             findings = self.engine.compute_three_key_findings()
             top5_names = [f"{s['entidad']} (${format_number(s['mdp'], 2)} MDP)" for s in findings['pareto_top5']]
@@ -1348,21 +1717,33 @@ Para mantener rigor metodológico sin alucinaciones, este asistente solo respond
 
         if intent == "top_rankings":
             ranks = self.engine.compute_severity_rankings(top_n=5)
-            lines = ["🤖 **Asistente de análisis**: Top 5 Estados con Mayor Severidad Promedio:"]
+            lines = ["🤖 **Asistente de análisis**: Top 5 Estados con Mayor Severidad e Índice Relativo (Promedio 2020–2024):"]
             for r in ranks:
-                lines.append(f"  {r['rank']}. **{r['entidad']}**: ${format_number(r['severidad'], 2)} MXN (Promedio 2020–2024)")
-                structured_metrics.append({
-                    "metric_id": f"ranking_top_{r['rank']}_severidad",
-                    "entity": r["entidad"],
-                    "period": "Promedio 2020–2024",
-                    "value": float(r["severidad"]),
-                    "unit": "MXN",
-                    "filters": {"rank": r["rank"], "n": 32},
-                    "operation_id": "compute_severity_rankings:RN-05",
-                    "slot_keywords": [f"{r['rank']}. {r['entidad']}:"]
-                })
+                lines.append(f"  {r['rank']}. **{r['entidad']}**: ${format_number(r['severidad'], 2)} MXN | Índice: **{format_number(r['indice'], 1)} pts** (Promedio 2020–2024)")
+                structured_metrics.extend([
+                    {
+                        "metric_id": f"ranking_top_{r['rank']}_severidad",
+                        "entity": r["entidad"],
+                        "period": "Promedio 2020–2024",
+                        "value": float(r["severidad"]),
+                        "unit": "MXN",
+                        "filters": {"rank": r["rank"], "n": 32},
+                        "operation_id": "compute_severity_rankings:RN-05",
+                        "slot_keywords": [f"{r['rank']}. {r['entidad']}:"]
+                    },
+                    {
+                        "metric_id": f"ranking_top_{r['rank']}_indice",
+                        "entity": r["entidad"],
+                        "period": "Promedio 2020–2024",
+                        "value": float(r["indice"]),
+                        "unit": "pts",
+                        "filters": {"rank": r["rank"], "n": 32},
+                        "operation_id": "compute_severity_rankings:RN-01",
+                        "slot_keywords": []
+                    }
+                ])
             lines.append("• Fuente: Chubb Baseline (2020-2024) & INEGI VMRC")
-            trace = self._build_traceability(structured_json, "compute_severity_rankings", ["RN-05", "RN-06"], "Promedio 2020–2024", 32)
+            trace = self._build_traceability(structured_json, "compute_severity_rankings", ["RN-01", "RN-05", "RN-06"], "Promedio 2020–2024", 32)
             return {"response": "\n".join(lines) + trace["footer"], "ir": structured_json, "structured_metrics": structured_metrics, "traceability": trace}
 
         if intent == "multi_state_comparison":

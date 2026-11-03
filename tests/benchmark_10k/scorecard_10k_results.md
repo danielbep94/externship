@@ -11,7 +11,7 @@
 | **Trazabilidad Completa ($\text{Trace}$: Fuente, Corte, Filtros, Op)** | 10,000 consultas | *NO_MEDIDO (Sin ser* | **100.00 %** (10,000/10,000) | **100.00 %** (10,000/10,000) | **100.00 %** |
 | **Confiabilidad ($\text{Rel}$: Abstención en Ventas/Rentabilidad/Faltantes)** | 2,075 consultas sin dato | *NO_MEDIDO (Sin ser* | **100.00 %** (2,075/2,075) | **100.00 %** (2,075/2,075) | **100.00 % (`S0 = 0`)** |
 | **Errores Críticos `S0` (Alucinación, Label Swap, Signo, Categoría)** | 10,000 consultas | *NO_MEDIDO (Sin ser* | **0** | **0** | **0 (Tolerancia Cero)** |
-| **Tiempo Medio de Respuesta (Pipeline en Memoria)** | 10,000 consultas | *Depende de GPU/API* | **1.312 ms** | **1.312 ms** (+ inferencia LLM si activo) | Documentado |
+| **Tiempo Medio de Respuesta (Pipeline en Memoria)** | 10,000 consultas | *Depende de GPU/API* | **1.340 ms** | **1.340 ms** (+ inferencia LLM si activo) | Documentado |
 
 > **Nota Metodológica (Problema 6)**: La columna *Enfoque 1: LLM Solo* no se rellena con simulaciones sintéticas. Cuando se ejecuta en un entorno sin servidor LLM activo, se reporta como `NO_MEDIDO` y puede ejecutarse empíricamente pasando `--ollama-model llama3:8b` tanto en modo `E1` (paridad estricta de registros) como `E2` (arquitectura integral).
 

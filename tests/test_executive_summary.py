@@ -19,6 +19,7 @@ from actuarial_core import (
     ConversationMemoryManager,
     ActuarialOperationsEngine,
     format_number,
+    normalize_text,
     compute_category_from_rule,
     display_category_label
 )
@@ -570,6 +571,117 @@ class TestExecutiveSummary(unittest.TestCase):
         resp_cdmx = self.assistant.ask("crea una explicación de los datos de Ciudad de México severidad para el año 2024")
         self.assertIn("Interpretación ejecutiva:", resp_cdmx)
         self.assertIn("56.1 % por encima", resp_cdmx)
+
+    def test_T28_severity_and_single_concept_clarity(self):
+        """Verifica que 'que es la severidad ? y como se calcula' responda directamente sobre severidad sin volcar RN-01 primero."""
+        for q_sev in [
+            "que es la severidad ? y como se calcula",
+            "¿Qué es la severidad?",
+            "como se calcula la severidad",
+            "definicion de severidad"
+        ]:
+            ir = self.parser.parse_to_structured_json(q_sev)
+            self.assertEqual(ir["intent"], "glossary_units", f"No enrutó a glossary_units: {q_sev}")
+            resp = self.assistant.ask(q_sev)
+            self.assertIn("¿Qué es la Severidad y cómo se calcula?", resp, f"Encabezado incorrecto para: {q_sev}")
+            self.assertNotIn("Catálogo de Reglas de Negocio", resp, f"Volcó catálogo genérico para: {q_sev}")
+            self.assertIn("costo económico promedio de cada siniestro", resp)
+            self.assertIn("13,647.32 MDP", resp)
+            self.assertIn("967,044.12 siniestros", resp)
+            self.assertIn("14,112.41 MXN", resp)
+
+        # Verificar conceptos individuales adicionales (MDP, Frecuencia)
+        resp_mdp = self.assistant.ask("que es mdp y como se calcula")
+        self.assertIn("¿Qué es el Costo Total (`MDP`) y cómo se calcula?", resp_mdp)
+        self.assertIn("90,373.46 MDP", resp_mdp)
+        self.assertIn("Millones de Pesos", resp_mdp)
+
+        resp_freq = self.assistant.ask("que es la frecuencia y como se calcula")
+        self.assertIn("¿Qué son la Frecuencia y la Exposición Asegurada?", resp_freq)
+        self.assertIn("35 % de exposición × 30 % de frecuencia", resp_freq)
+
+    def test_T29_chart_explanation_triggers_and_superscript_r2(self):
+        """Verifica que 'Explicar R² y el 72.05%' y las demás consultas de gráficas normalicen '²'->'2' y enruten sin caer en fallback."""
+        self.assertEqual(normalize_text("Explicar R² y el 72.05%"), "explicar r2 y el 72 05")
+
+        chart_queries = [
+            ("Explicar barras, línea y ejes de Pareto", "pareto_breakdown", "47.1%"),
+            ("Explicar R² y el 72.05%", "regression_drivers", "72.05%"),
+            ("Explicar tendencia histórica de severidad", "growth_cagr", "Tlaxcala"),
+        ]
+        for q, expected_intent, expected_text in chart_queries:
+            ir = self.parser.parse_to_structured_json(q)
+            self.assertEqual(ir["intent"], expected_intent, f"Intent incorrecto para '{q}': {ir['intent']}")
+            resp = self.assistant.ask(q)
+            self.assertIn(expected_text, resp, f"Falta '{expected_text}' en respuesta a '{q}'")
+            self.assertNotIn("No reconocí", resp)
+
+    def test_T30_growth_typos_and_relative_index_rankings(self):
+        """Verifica los 3 casos reportados: crecimiento acumulado con typo, typo estatal 'CHICHUACA' 2024 y mayor índice relativo."""
+        # Caso 1: "CUALES EL ESTADO CON MAYOR CRECIMOENTO ACUMULADO ?"
+        q1 = "CUALES EL ESTADO CON MAYOR CRECIMOENTO ACUMULADO ?"
+        ir1 = self.parser.parse_to_structured_json(q1)
+        self.assertEqual(ir1["intent"], "growth_cagr")
+        self.assertEqual(ir1["states"], [])
+        resp1 = self.assistant.ask(q1)
+        self.assertIn("Tlaxcala", resp1)
+        self.assertIn("150.6%", resp1)
+        self.assertNotIn("No reconocí", resp1)
+
+        # Caso 2: "SEVERIDAD CHICHUACA 2024?"
+        q2 = "SEVERIDAD CHICHUACA 2024?"
+        ir2 = self.parser.parse_to_structured_json(q2)
+        self.assertEqual(ir2["intent"], "single_state")
+        self.assertEqual(ir2["states"], ["Chihuahua"])
+        self.assertEqual(ir2["target_year"], 2024)
+        resp2 = self.assistant.ask(q2)
+        self.assertIn("Chihuahua", resp2)
+        self.assertIn("11,422.11", resp2)
+        self.assertIn("126.3 pts", resp2)
+        self.assertNotIn("No reconocí", resp2)
+
+        # Caso 3: "CUALES ES EL ESTADO CON MAYOR INDICE RELATIVO ?"
+        q3 = "CUALES ES EL ESTADO CON MAYOR INDICE RELATIVO ?"
+        ir3 = self.parser.parse_to_structured_json(q3)
+        self.assertEqual(ir3["intent"], "top_rankings")
+        self.assertEqual(ir3["states"], [])
+        resp3 = self.assistant.ask(q3)
+        self.assertIn("Nuevo Leon", resp3)
+        self.assertIn("209.3 pts", resp3)
+        self.assertNotIn("No reconocí", resp3)
+
+    def test_T31_recommendations_preventive_actions_and_opportunities(self):
+        """Verifica que tras pedir resumen de Chihuahua 2024, consultas de recomendaciones, acciones preventivas y oportunidades respondan con datos reales."""
+        # Turno 1: Resumen ejecutivo de Chihuahua 2024 (con typo 'paa')
+        resp_sum = self.assistant.ask("crea un resumen de la severidad de chihuahua paa el año 2024")
+        self.assertIn("Resumen ejecutivo — Chihuahua (2024)", resp_sum)
+        self.assertIn("11,422.11", resp_sum)
+
+        # Turno 2: Recomendaciones explícitas para Chihuahua
+        q_rec = "que recomendaciones me puedes dar para chihuahua ?"
+        ir_rec = self.parser.parse_to_structured_json(q_rec)
+        self.assertEqual(ir_rec["intent"], "recommendations_actions")
+        self.assertEqual(ir_rec["states"], ["Chihuahua"])
+        self.assertEqual(ir_rec["target_year"], 2024)
+        resp_rec = self.assistant.ask(q_rec)
+        self.assertIn("Recomendaciones, Acciones Preventivas y Oportunidades — Chihuahua (2024)", resp_rec)
+        self.assertIn("11,422.11", resp_rec)
+        self.assertIn("126.3 pts", resp_rec)
+        self.assertIn("4,487.71 MDP", resp_rec)
+        self.assertIn("275k MXN", resp_rec)
+        self.assertIn("387.5 autos / 1,000 hab.", resp_rec)
+        self.assertIn("Acciones Preventivas y de Mitigación", resp_rec)
+        self.assertIn("Identificación de Oportunidades Basadas en los Datos", resp_rec)
+
+        # Turno 3: Continuación sin mencionar estado ("identificar oputinidades y acciones preventivas")
+        q_opp = "identificar oputinidades y acciones preventivas"
+        ir_opp = self.parser.parse_to_structured_json(q_opp)
+        self.assertEqual(ir_opp["intent"], "recommendations_actions")
+        self.assertEqual(ir_opp["states"], ["Chihuahua"])
+        self.assertEqual(ir_opp["target_year"], 2024)
+        resp_opp = self.assistant.ask(q_opp)
+        self.assertIn("Recomendaciones, Acciones Preventivas y Oportunidades — Chihuahua (2024)", resp_opp)
+        self.assertIn("Oportunidad de retención y crecimiento selectivo", resp_opp)
 
 
 if __name__ == '__main__':

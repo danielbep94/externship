@@ -16,8 +16,8 @@
     "traceability_pct": 100.0,
     "reliability_abstention_pct": 100.0,
     "independent_families_accuracy_pct": 100.0,
-    "avg_latency_ms": 1.3119941833000002,
-    "total_time_seconds": 13.119941833,
+    "avg_latency_ms": 1.3398720874999999,
+    "total_time_seconds": 13.398720874999999,
     "severity_breakdown": {
       "S0_CRITICO": 0,
       "S1_MAYOR": 0,
