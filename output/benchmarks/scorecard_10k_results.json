@@ -1,0 +1,59 @@
+{
+  "benchmark_version": "2.0.0",
+  "seed": 20261030,
+  "total_questions": 10000,
+  "independent_math_families": 3289,
+  "calculation_questions": 7925,
+  "abstention_questions": 2075,
+  "paraphrase_clusters": 280,
+  "golden_manual_checks": 35,
+  "live_llm_status": "NO_MEDIDO (Sin servidor LLM activo en el entorno; ejecute con --ollama-model <modelo> para medición empírica)",
+  "hybrid_grounding_metrics": {
+    "numeric_accuracy_pct": 100.0,
+    "business_metrics_accuracy_pct": 100.0,
+    "consistency_clusters_pct": 100.0,
+    "repeatability_r3_pct": 100.0,
+    "traceability_pct": 100.0,
+    "reliability_abstention_pct": 100.0,
+    "independent_families_accuracy_pct": 100.0,
+    "avg_latency_ms": 1.3398720874999999,
+    "total_time_seconds": 13.398720874999999,
+    "severity_breakdown": {
+      "S0_CRITICO": 0,
+      "S1_MAYOR": 0,
+      "S2_MENOR": 0,
+      "OK_SIN_ERROR": 10000
+    }
+  },
+  "verifier_fault_injection_audit": {
+    "total_injected": 600,
+    "total_detected": 600,
+    "recall_pct": 100.0,
+    "by_fault_type": {
+      "LABEL_SWAP_S0": {
+        "injected": 100,
+        "detected": 100
+      },
+      "HALLUCINATED_NUMBER_S0": {
+        "injected": 100,
+        "detected": 100
+      },
+      "SILENT_KPI_SUBSTITUTION_S0": {
+        "injected": 100,
+        "detected": 100
+      },
+      "CATEGORY_INVERSION_S0": {
+        "injected": 100,
+        "detected": 100
+      },
+      "NUMERIC_DRIFT_S1": {
+        "injected": 100,
+        "detected": 100
+      },
+      "MISSING_TRACE_S2": {
+        "injected": 100,
+        "detected": 100
+      }
+    }
+  }
+}

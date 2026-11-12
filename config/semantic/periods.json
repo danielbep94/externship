@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "valid_years": [2020, 2021, 2022, 2023, 2024],
+  "default_year": 2024,
+  "base_year": 2020,
+  "period_label": "Promedio 2020–2024",
+  "supported_granularities": ["state", "national"],
+  "supported_temporal_scopes": ["annual", "period_average_2020_2024"]
+}
+

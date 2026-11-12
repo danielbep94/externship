@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CHUBB Actuarial Severity Dataset Schema",
+  "type": "object",
+  "required": ["metadata", "estados", "scatter_stats"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "titulo",
+        "periodo",
+        "promedio_nacional_severidad",
+        "total_mdp_nacional_promedio",
+        "fechas_corte"
+      ],
+      "properties": {
+        "titulo": { "type": "string" },
+        "periodo": { "type": "string" },
+        "promedio_nacional_severidad": { "type": "number", "exclusiveMinimum": 0 },
+        "total_mdp_nacional_promedio": { "type": "number", "exclusiveMinimum": 0 },
+        "fechas_corte": { "type": "object" }
+      }
+    },
+    "estados": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": [
+          "cve_ent",
+          "entidad",
+          "severidad_promedio",
+          "siniestros_ocurridos_mdp_promedio",
+          "poblacion_2020",
+          "automoviles_registrados",
+          "area_km2",
+          "precio_promedio_auto_ml_k_mxn",
+          "precio_gasolina_reg_prom",
+          "autos_por_1000_hab",
+          "densidad_poblacional",
+          "cagr_2020_2024_pct",
+          "yearly_severidad",
+          "yearly_mdp",
+          "yearly_categoria",
+          "indice_severidad",
+          "pct_costo_nacional",
+          "categoria_severidad"
+        ]
+      }
+    },
+    "scatter_stats": {
+      "type": "object",
+      "required": [
+        "r_pearson",
+        "r2_score",
+        "p_value",
+        "slope",
+        "intercept",
+        "formula"
+      ]
+    }
+  }
+}
+

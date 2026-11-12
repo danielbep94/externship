@@ -1,0 +1,118 @@
+{
+  "version": "1.0.0",
+  "metrics": {
+    "severidad": {
+      "canonical": "severidad",
+      "label": "Severidad Unitaria ($/Siniestro)",
+      "unit": "MXN por siniestro",
+      "decimals": 2,
+      "rule_id": "RN-03",
+      "keywords": [
+        "severidad",
+        "costo unitario",
+        "costo por siniestro",
+        "severo",
+        "costoso",
+        "severidades",
+        "cuantia"
+      ]
+    },
+    "costo_mdp": {
+      "canonical": "costo_mdp",
+      "label": "Costo Total de Siniestros (MDP)",
+      "unit": "MDP (Millones de Pesos)",
+      "decimals": 2,
+      "rule_id": "RN-03",
+      "keywords": [
+        "costo total",
+        "mdp",
+        "volumen",
+        "perdida agregada",
+        "monto total",
+        "costo anual",
+        "millones"
+      ]
+    },
+    "indice_relativo": {
+      "canonical": "indice_relativo",
+      "label": "Índice Relativo de Severidad",
+      "unit": "pts (Base Nacional = 100)",
+      "decimals": 1,
+      "rule_id": "RN-01",
+      "keywords": [
+        "indice",
+        "relativo",
+        "base 100",
+        "pts",
+        "respecto a la media"
+      ]
+    },
+    "crecimiento_cagr": {
+      "canonical": "crecimiento_cagr",
+      "label": "Crecimiento Histórico y CAGR",
+      "unit": "% acumulado / % anual compuesto",
+      "decimals": 1,
+      "rule_id": "RN-04",
+      "keywords": [
+        "crecimiento",
+        "cagr",
+        "incremento",
+        "aumento",
+        "tendencia",
+        "evolucion",
+        "duplicaron",
+        "acumulado"
+      ]
+    },
+    "riesgo_categoria": {
+      "canonical": "riesgo_categoria",
+      "label": "Categoría y Nivel de Riesgo",
+      "unit": "Estrato (Baja, Media, Crítica)",
+      "decimals": 0,
+      "rule_id": "RN-02",
+      "keywords": [
+        "categoria",
+        "nivel",
+        "riesgo",
+        "semaforo",
+        "estrato",
+        "critica",
+        "media",
+        "baja"
+      ]
+    },
+    "pareto": {
+      "canonical": "pareto",
+      "label": "Concentración de Pérdida (Pareto)",
+      "unit": "% del total nacional",
+      "decimals": 1,
+      "rule_id": "RN-03",
+      "keywords": [
+        "pareto",
+        "concentracion",
+        "top 5 volumen",
+        "curva acumulada",
+        "80 20"
+      ]
+    },
+    "asociacion_precios": {
+      "canonical": "asociacion_precios",
+      "label": "Correlación y Regresión (Scatter R²)",
+      "unit": "r de Pearson / R² score",
+      "decimals": 4,
+      "rule_id": "OLS-Scatter",
+      "keywords": [
+        "r2",
+        "r²",
+        "correlacion",
+        "precio auto",
+        "regresion",
+        "asociacion",
+        "variables",
+        "afectan",
+        "drivers"
+      ]
+    }
+  }
+}
+

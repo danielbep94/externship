@@ -1,33 +1,30 @@
 """
-Asistente de Análisis Actuarial con Arquitectura Grounded (Llama-3 & Python)
-Implementa:
-- Validación de esquema, integridad y consistencia (Fase 1)
-- Catálogo de métricas y alias de entidades N-estatal (Fase 2)
-- Separación de contexto confirmado vs interpretaciones pendientes (Fase 3)
-- Motor de operaciones actuariales sin cifras hardcodeadas (Fase 4)
-- Generación de JSON estructurado y validación previa a la ejecución (Fase 5)
+Compatibility Facade for ai_assistant_llm.
+Re-exports LlamaColabDataAgent and GroundedActuarialAssistant from chubb.conversational_ai.
 """
 
-from llm_grounding import GroundedActuarialAssistant, MockLlama3Provider
-from actuarial_core import ActuarialCatalog, ActuarialDataValidator
+import os
+import sys
 
-class LlamaColabDataAgent:
-    """
-    Agente Actuarial Grounded con soporte para Llama-3.
-    Mantiene compatibilidad con notebooks y suites de benchmark,
-    delegando en el motor validado GroundedActuarialAssistant.
-    """
-    def __init__(self, data_path: str = '/Users/victordaniel/chubb/data.json'):
-        self.assistant = GroundedActuarialAssistant(data_path=data_path)
-        self.catalog = self.assistant.catalog
-        self.engine = self.assistant.engine
-        self.memory = self.assistant.memory
+_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
 
-    def process_query(self, user_question: str) -> str:
-        return self.assistant.ask(user_question)
+from chubb.conversational_ai.assistant import (
+    GroundedActuarialAssistant,
+    LlamaColabDataAgent,
+)
+from chubb.conversational_ai.providers import MockLlama3Provider
+from chubb.semantic_foundation.actuarial_catalog import ActuarialCatalog
+from chubb.validation_foundation.data_validator import ActuarialDataValidator
 
-    def query(self, user_question: str) -> str:
-        return self.process_query(user_question)
+__all__ = [
+    "LlamaColabDataAgent",
+    "GroundedActuarialAssistant",
+    "MockLlama3Provider",
+    "ActuarialCatalog",
+    "ActuarialDataValidator",
+]
 
 if __name__ == "__main__":
     agent = LlamaColabDataAgent()
